@@ -310,21 +310,17 @@ export const useAppStore = create<StoreWithInternals>()(
           case 'message': {
             // Gelen mesajı Yjs'e ve store'a ekle
             const message = payload as import('@/types').Message
-            console.log('[handleMessage] received:', message.id, 'channelId:', message.channelId)
             if (_yjs) {
               addMessageToYjs(_yjs, message.channelId, message)
             }
             // Store'da da güncelle (UI görünmesi için)
-            set(state => {
-              console.log('[handleMessage] updating messages, channel:', message.channelId)
-              return {
-                messages: {
-                  ...state.messages,
-                  [message.channelId]: [...(state.messages[message.channelId] || []), message],
-                },
-                lastActivity: { ...state.lastActivity, [message.channelId]: message.createdAt },
-              }
-            })
+            set(state => ({
+              messages: {
+                ...state.messages,
+                [message.channelId]: [...(state.messages[message.channelId] || []), message],
+              },
+              lastActivity: { ...state.lastActivity, [message.channelId]: message.createdAt },
+            }))
             break
           }
         }
@@ -858,13 +854,8 @@ export const useAppStore = create<StoreWithInternals>()(
 
         /* Mesaj */
         sendMessage: async (channelId: ID, content: string, options: SendMessageOptions = {}) => {
-          const state = get()
-          console.log('[sendMessage] state check:', { me: !!state.me, guild: !!state.guild, yjs: !!state._yjs, transport: !!state._textTransport })
-          const { me, guild, _yjs: yjs, _textTransport: transport } = state
-          if (!me || !guild || !yjs || !transport) {
-            console.error('[sendMessage] missing state:', { me: !!me, guild: !!guild, yjs: !!yjs, transport: !!transport })
-            return
-          }
+          const { me, guild, _yjs: yjs, _textTransport: transport } = get()
+          if (!me || !guild || !yjs || !transport) return
 
           const message: Message = {
             id: uid('msg'),
@@ -908,10 +899,8 @@ export const useAppStore = create<StoreWithInternals>()(
           }
 
           // Broadcast (Yjs update zaten gider ama mesaj bildirimi için)
-          console.log('[sendMessage] broadcasting message:', message.id, 'channelId:', channelId)
           try {
             await transport.broadcast('message', message)
-            console.log('[sendMessage] broadcast successful')
           } catch (e) {
             console.error('[Store] broadcast hatası:', e)
           }
