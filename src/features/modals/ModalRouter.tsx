@@ -7,10 +7,13 @@ import { JoinGuildModal } from './JoinGuildModal'
 import { InviteModal } from './InviteModal'
 import { UserSettingsModal } from './UserSettingsModal'
 import { GuildSettingsModal } from './GuildSettingsModal'
+import { ChannelProfileModal } from './ChannelProfileModal'
+import { CreateChannelModal } from './CreateChannelModal'
+import { CreateCategoryModal } from './CreateCategoryModal'
 import type { ModalKind } from '@/types'
 
 export function ModalRouter() {
-  const { modal } = useAppStore()
+  const { modal, modalPayload } = useAppStore()
 
   const renderModal = (kind: ModalKind) => {
     switch (kind) {
@@ -24,6 +27,12 @@ export function ModalRouter() {
         return <UserSettingsModal />
       case 'guild-settings':
         return <GuildSettingsModal />
+      case 'channel-profile':
+        return <ChannelProfileModal />
+      case 'create-channel':
+        return <CreateChannelModal />
+      case 'create-category':
+        return <CreateCategoryModal />
       case 'command-palette':
         return null // CommandPalette ayrı olarak render edilir
       case 'image-preview':

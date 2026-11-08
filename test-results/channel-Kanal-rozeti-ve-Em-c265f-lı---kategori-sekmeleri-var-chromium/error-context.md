@@ -30,7 +30,7 @@ Received:    720
           - generic [ref=e14]: TS
         - button "Yeni sunucu oluştur" [ref=e16] [cursor=pointer]
       - generic [ref=e18]:
-        - generic [ref=e19]: G1
+        - generic [ref=e19]: GA
         - button "Kullanıcı ayarları" [ref=e24] [cursor=pointer]
     - generic [ref=e28]:
       - complementary [ref=e29]:
@@ -43,23 +43,23 @@ Received:    720
           - button "Davet linki oluştur" [ref=e40] [cursor=pointer]: Davet et
           - generic [ref=e47]:
             - generic [ref=e48]:
-              - paragraph [ref=e49]: GENEL
-              - button "genel" [ref=e50] [cursor=pointer]
-              - button "rastgele" [ref=e55] [cursor=pointer]
-            - generic [ref=e60]:
-              - paragraph [ref=e61]: SES
-              - button "Genel Ses" [ref=e62] [cursor=pointer]
-              - button "Oyun Odası" [ref=e67] [cursor=pointer]
-          - generic [ref=e72]:
-            - generic [ref=e74]:
-              - textbox "Yeni kanal adı…" [ref=e77]
-              - button "Kanal oluştur" [disabled]
-            - button "Üye listesini aç/kapa" [ref=e78] [cursor=pointer]: Üyeler
+              - generic [ref=e49]:
+                - paragraph [ref=e50]: GENEL
+                - button "GENEL kategorisine kanal ekle" [ref=e51] [cursor=pointer]
+              - button "genel" [ref=e53] [cursor=pointer]
+              - button "rastgele" [ref=e58] [cursor=pointer]
+            - generic [ref=e63]:
+              - generic [ref=e64]:
+                - paragraph [ref=e65]: SES
+                - button "SES kategorisine kanal ekle" [ref=e66] [cursor=pointer]
+              - button "Genel Ses" [ref=e68] [cursor=pointer]
+              - button "Oyun Odası" [ref=e73] [cursor=pointer]
+          - button "Üye listesini aç/kapa" [ref=e78] [cursor=pointer]: Üyeler
           - generic [ref=e86]:
             - generic [ref=e87]:
-              - generic [ref=e88]: G1
+              - generic [ref=e88]: GA
               - generic [ref=e92]:
-                - paragraph [ref=e93]: Gezgin-15293D10
+                - paragraph [ref=e93]: Gezgin-A88BE4D6
                 - generic [ref=e94]: Çevrimiçi
             - generic [ref=e97]:
               - button "Mikrofonu kapat" [ref=e98] [cursor=pointer]
@@ -84,291 +84,33 @@ Received:    720
           - generic [ref=e144]:
             - button "Emoji seçici" [expanded] [ref=e145] [cursor=pointer]: 😀
             - dialog [ref=e147]:
-              - generic [ref=e149]:
-                - button "Gülümler & Duygular" [active] [ref=e150] [cursor=pointer]
-                - button "İnsanlar & Vücut" [ref=e151] [cursor=pointer]
-                - button "Hayvanlar & Doğa" [ref=e152] [cursor=pointer]
-                - button "Yemek & İçecek" [ref=e153] [cursor=pointer]
-                - button "Etkinlik" [ref=e154] [cursor=pointer]
-                - button "Seyahat & Yerin" [ref=e155] [cursor=pointer]
-                - button "Nesneler" [ref=e156] [cursor=pointer]
-              - generic [ref=e157]:
-                - button "😀" [ref=e158] [cursor=pointer]
-                - button "😁" [ref=e159] [cursor=pointer]
-                - button "😂" [ref=e160] [cursor=pointer]
-                - button "😃" [ref=e161] [cursor=pointer]
-                - button "😄" [ref=e162] [cursor=pointer]
-                - button "😅" [ref=e163] [cursor=pointer]
-                - button "😆" [ref=e164] [cursor=pointer]
-                - button "😉" [ref=e165] [cursor=pointer]
-                - button "😊" [ref=e166] [cursor=pointer]
-                - button "😋" [ref=e167] [cursor=pointer]
-                - button "😎" [ref=e168] [cursor=pointer]
-                - button "😍" [ref=e169] [cursor=pointer]
-                - button "😘" [ref=e170] [cursor=pointer]
-                - button "🥰" [ref=e171] [cursor=pointer]
-                - button "😗" [ref=e172] [cursor=pointer]
-                - button "😙" [ref=e173] [cursor=pointer]
-                - button "😚" [ref=e174] [cursor=pointer]
-                - button "😛" [ref=e175] [cursor=pointer]
-                - button "😜" [ref=e176] [cursor=pointer]
-                - button "😝" [ref=e177] [cursor=pointer]
-                - button "🤑" [ref=e178] [cursor=pointer]
-                - button "🤗" [ref=e179] [cursor=pointer]
-                - button "🤠" [ref=e180] [cursor=pointer]
-                - button "🤡" [ref=e181] [cursor=pointer]
-                - button "🤢" [ref=e182] [cursor=pointer]
-                - button "🤣" [ref=e183] [cursor=pointer]
-                - button "🤤" [ref=e184] [cursor=pointer]
-                - button "🥵" [ref=e185] [cursor=pointer]
-                - button "🥶" [ref=e186] [cursor=pointer]
-                - button "🥷" [ref=e187] [cursor=pointer]
-                - button "👀" [ref=e188] [cursor=pointer]
-                - button "👁️‍🗨️" [ref=e189] [cursor=pointer]
-                - button "👂" [ref=e190] [cursor=pointer]
-                - button "👃" [ref=e191] [cursor=pointer]
-                - button "👄" [ref=e192] [cursor=pointer]
-                - button "👅" [ref=e193] [cursor=pointer]
-                - button "👆" [ref=e194] [cursor=pointer]
-                - button "👇" [ref=e195] [cursor=pointer]
-                - button "👈" [ref=e196] [cursor=pointer]
-                - button "👉" [ref=e197] [cursor=pointer]
-                - button "👊" [ref=e198] [cursor=pointer]
-                - button "👋" [ref=e199] [cursor=pointer]
-                - button "👍" [ref=e200] [cursor=pointer]
-                - button "👎" [ref=e201] [cursor=pointer]
-                - button "👏" [ref=e202] [cursor=pointer]
-                - button "👑" [ref=e203] [cursor=pointer]
-                - button "💋" [ref=e204] [cursor=pointer]
-                - button "💌" [ref=e205] [cursor=pointer]
-                - button "💐" [ref=e206] [cursor=pointer]
-                - button "💓" [ref=e207] [cursor=pointer]
-                - button "🐀" [ref=e208] [cursor=pointer]
-                - button "🐁" [ref=e209] [cursor=pointer]
-                - button "🐂" [ref=e210] [cursor=pointer]
-                - button "🐃" [ref=e211] [cursor=pointer]
-                - button "🐄" [ref=e212] [cursor=pointer]
-                - button "🐅" [ref=e213] [cursor=pointer]
-                - button "🐆" [ref=e214] [cursor=pointer]
-                - button "🐇" [ref=e215] [cursor=pointer]
-                - button "🐈" [ref=e216] [cursor=pointer]
-                - button "🐉" [ref=e217] [cursor=pointer]
-                - button "🐊" [ref=e218] [cursor=pointer]
-                - button "🐋" [ref=e219] [cursor=pointer]
-                - button "🐌" [ref=e220] [cursor=pointer]
-                - button "🐍" [ref=e221] [cursor=pointer]
-                - button "🐎" [ref=e222] [cursor=pointer]
-                - button "🐏" [ref=e223] [cursor=pointer]
-                - button "🐐" [ref=e224] [cursor=pointer]
-                - button "🐑" [ref=e225] [cursor=pointer]
-                - button "🐒" [ref=e226] [cursor=pointer]
-                - button "🐓" [ref=e227] [cursor=pointer]
-                - button "🐘" [ref=e228] [cursor=pointer]
-                - button "🐕" [ref=e229] [cursor=pointer]
-                - button "🐖" [ref=e230] [cursor=pointer]
-                - button "🐗" [ref=e231] [cursor=pointer]
-                - button "🐘" [ref=e232] [cursor=pointer]
-                - button "🐙" [ref=e233] [cursor=pointer]
-                - button "🐚" [ref=e234] [cursor=pointer]
-                - button "🐛" [ref=e235] [cursor=pointer]
-                - button "🐜" [ref=e236] [cursor=pointer]
-                - button "🐝" [ref=e237] [cursor=pointer]
-                - button "🐞" [ref=e238] [cursor=pointer]
-                - button "🐟" [ref=e239] [cursor=pointer]
-                - button "🐠" [ref=e240] [cursor=pointer]
-                - button "🐡" [ref=e241] [cursor=pointer]
-                - button "🐢" [ref=e242] [cursor=pointer]
-                - button "🐡" [ref=e243] [cursor=pointer]
-                - button "🐤" [ref=e244] [cursor=pointer]
-                - button "🐥" [ref=e245] [cursor=pointer]
-                - button "🐦" [ref=e246] [cursor=pointer]
-                - button "🐧" [ref=e247] [cursor=pointer]
-                - button "🐨" [ref=e248] [cursor=pointer]
-                - button "🐪" [ref=e249] [cursor=pointer]
-                - button "🐫" [ref=e250] [cursor=pointer]
-                - button "🐬" [ref=e251] [cursor=pointer]
-                - button "🐭" [ref=e252] [cursor=pointer]
-                - button "🐮" [ref=e253] [cursor=pointer]
-                - button "🐯" [ref=e254] [cursor=pointer]
-                - button "🐰" [ref=e255] [cursor=pointer]
-                - button "🐱" [ref=e256] [cursor=pointer]
-                - button "🐲" [ref=e257] [cursor=pointer]
-                - button "🍀" [ref=e258] [cursor=pointer]
-                - button "🍁" [ref=e259] [cursor=pointer]
-                - button "🍂" [ref=e260] [cursor=pointer]
-                - button "🍃" [ref=e261] [cursor=pointer]
-                - button "🍄" [ref=e262] [cursor=pointer]
-                - button "🥑" [ref=e263] [cursor=pointer]
-                - button "🍆" [ref=e264] [cursor=pointer]
-                - button "🍇" [ref=e265] [cursor=pointer]
-                - button "🍈" [ref=e266] [cursor=pointer]
-                - button "🍉" [ref=e267] [cursor=pointer]
-                - button "🍊" [ref=e268] [cursor=pointer]
-                - button "🍋" [ref=e269] [cursor=pointer]
-                - button "🍌" [ref=e270] [cursor=pointer]
-                - button "🍍" [ref=e271] [cursor=pointer]
-                - button "🍎" [ref=e272] [cursor=pointer]
-                - button "🍏" [ref=e273] [cursor=pointer]
-                - button "🥭" [ref=e274] [cursor=pointer]
-                - button "🥝" [ref=e275] [cursor=pointer]
-                - button "🥥" [ref=e276] [cursor=pointer]
-                - button "🥦" [ref=e277] [cursor=pointer]
-                - button "⚽" [ref=e278] [cursor=pointer]
-                - button "⚾" [ref=e279] [cursor=pointer]
-                - button "🎾" [ref=e280] [cursor=pointer]
-                - button "🏀" [ref=e281] [cursor=pointer]
-                - button "🏐" [ref=e282] [cursor=pointer]
-                - button "🏈" [ref=e283] [cursor=pointer]
-                - button "🏓" [ref=e284] [cursor=pointer]
-                - button "🥊" [ref=e285] [cursor=pointer]
-                - button "🚗" [ref=e286] [cursor=pointer]
-                - button "🚖" [ref=e287] [cursor=pointer]
-                - button "🚕" [ref=e288] [cursor=pointer]
-                - button "🚙" [ref=e289] [cursor=pointer]
-                - button "🚌" [ref=e290] [cursor=pointer]
-                - button "🚐" [ref=e291] [cursor=pointer]
-                - button "🚑" [ref=e292] [cursor=pointer]
-                - button "🚒" [ref=e293] [cursor=pointer]
-                - button "🚓" [ref=e294] [cursor=pointer]
-                - button "🚔" [ref=e295] [cursor=pointer]
-                - button "🚕" [ref=e296] [cursor=pointer]
-                - button "🚗" [ref=e297] [cursor=pointer]
-                - button "🏎️" [ref=e298] [cursor=pointer]
-                - button "🚀" [ref=e299] [cursor=pointer]
-                - button "✈️" [ref=e300] [cursor=pointer]
-                - button "🛫" [ref=e301] [cursor=pointer]
-                - button "🛬" [ref=e302] [cursor=pointer]
-                - button "🚁" [ref=e303] [cursor=pointer]
-                - button "🚂" [ref=e304] [cursor=pointer]
-                - button "🚊" [ref=e305] [cursor=pointer]
-                - button "💻" [ref=e306] [cursor=pointer]
-                - button "📱" [ref=e307] [cursor=pointer]
-                - button "💾" [ref=e308] [cursor=pointer]
-                - button "💿" [ref=e309] [cursor=pointer]
-                - button "📓" [ref=e310] [cursor=pointer]
-                - button "📔" [ref=e311] [cursor=pointer]
-                - button "📚" [ref=e312] [cursor=pointer]
-                - button "📖" [ref=e313] [cursor=pointer]
-                - button "📝" [ref=e314] [cursor=pointer]
-                - button "🗒️" [ref=e315] [cursor=pointer]
-                - button "📋" [ref=e316] [cursor=pointer]
-                - button "📌" [ref=e317] [cursor=pointer]
-                - button "📍" [ref=e318] [cursor=pointer]
-                - button "🗛" [ref=e319] [cursor=pointer]
-                - button "🗜️" [ref=e320] [cursor=pointer]
-                - button "⌨️" [ref=e321] [cursor=pointer]
-                - button "🖱️" [ref=e322] [cursor=pointer]
-                - button "🖥️" [ref=e323] [cursor=pointer]
-                - button "🖨️" [ref=e324] [cursor=pointer]
-                - button "💽" [ref=e325] [cursor=pointer]
-                - button "👕" [ref=e326] [cursor=pointer]
-                - button "👖" [ref=e327] [cursor=pointer]
-                - button "🥻" [ref=e328] [cursor=pointer]
-                - button "👘" [ref=e329] [cursor=pointer]
-                - button "🥽" [ref=e330] [cursor=pointer]
-                - button "🎩" [ref=e331] [cursor=pointer]
-                - button "🎓" [ref=e332] [cursor=pointer]
-                - button "👓" [ref=e333] [cursor=pointer]
-                - button "🧢" [ref=e334] [cursor=pointer]
-                - button "🧤" [ref=e335] [cursor=pointer]
-                - button "💯" [ref=e336] [cursor=pointer]
-                - button "💠" [ref=e337] [cursor=pointer]
-                - button "💡" [ref=e338] [cursor=pointer]
-                - button "💢" [ref=e339] [cursor=pointer]
-                - button "💦" [ref=e340] [cursor=pointer]
-                - button "💧" [ref=e341] [cursor=pointer]
-                - button "💨" [ref=e342] [cursor=pointer]
-                - button "🕊️" [ref=e343] [cursor=pointer]
-                - button "🕋" [ref=e344] [cursor=pointer]
-                - button "🕌" [ref=e345] [cursor=pointer]
-                - button "⛪" [ref=e346] [cursor=pointer]
-                - button "🕍" [ref=e347] [cursor=pointer]
-                - button "🕎" [ref=e348] [cursor=pointer]
-                - button "⛩️" [ref=e349] [cursor=pointer]
-                - button "⛲" [ref=e350] [cursor=pointer]
-                - button "🗻" [ref=e351] [cursor=pointer]
-                - button "🏔️" [ref=e352] [cursor=pointer]
-                - button "🏕️" [ref=e353] [cursor=pointer]
-                - button "🏖️" [ref=e354] [cursor=pointer]
-                - button "🏝️" [ref=e355] [cursor=pointer]
-                - button "🏘️" [ref=e356] [cursor=pointer]
-                - button "🏚️" [ref=e357] [cursor=pointer]
-                - button "🏠" [ref=e358] [cursor=pointer]
-                - button "🏡" [ref=e359] [cursor=pointer]
-                - button "🏢" [ref=e360] [cursor=pointer]
-                - button "🏣" [ref=e361] [cursor=pointer]
-                - button "🏤" [ref=e362] [cursor=pointer]
-                - button "🏥" [ref=e363] [cursor=pointer]
-                - button "🏦" [ref=e364] [cursor=pointer]
-                - button "🏨" [ref=e365] [cursor=pointer]
-                - button "🏩" [ref=e366] [cursor=pointer]
-                - button "💒" [ref=e367] [cursor=pointer]
-                - button "⛺" [ref=e368] [cursor=pointer]
-                - button "🏯" [ref=e369] [cursor=pointer]
-                - button "🏰" [ref=e370] [cursor=pointer]
-                - button "🗿" [ref=e371] [cursor=pointer]
-                - button "😺" [ref=e372] [cursor=pointer]
-                - button "😸" [ref=e373] [cursor=pointer]
-                - button "😹" [ref=e374] [cursor=pointer]
-                - button "😻" [ref=e375] [cursor=pointer]
-                - button "😼" [ref=e376] [cursor=pointer]
-                - button "😽" [ref=e377] [cursor=pointer]
-                - button "😾" [ref=e378] [cursor=pointer]
-                - button "😿" [ref=e379] [cursor=pointer]
-                - button "😸" [ref=e380] [cursor=pointer]
-                - button "😹" [ref=e381] [cursor=pointer]
-                - button "😺" [ref=e382] [cursor=pointer]
-                - button "🐵" [ref=e383] [cursor=pointer]
-                - button "🐒" [ref=e384] [cursor=pointer]
-                - button "🐴" [ref=e385] [cursor=pointer]
-                - button "🐮" [ref=e386] [cursor=pointer]
-                - button "🐷" [ref=e387] [cursor=pointer]
-                - button "🐸" [ref=e388] [cursor=pointer]
-                - button "🐔" [ref=e389] [cursor=pointer]
-                - button "🐧" [ref=e390] [cursor=pointer]
-                - button "🐦" [ref=e391] [cursor=pointer]
-                - button "🐥" [ref=e392] [cursor=pointer]
-                - button "🐣" [ref=e393] [cursor=pointer]
-                - button "🐒" [ref=e394] [cursor=pointer]
-                - button "🐁" [ref=e395] [cursor=pointer]
-                - button "😀" [ref=e396] [cursor=pointer]
-                - button "😁" [ref=e397] [cursor=pointer]
-                - button "😂" [ref=e398] [cursor=pointer]
-                - button "😃" [ref=e399] [cursor=pointer]
-                - button "😄" [ref=e400] [cursor=pointer]
-                - button "😅" [ref=e401] [cursor=pointer]
-                - button "😆" [ref=e402] [cursor=pointer]
-                - button "😉" [ref=e403] [cursor=pointer]
-                - button "😊" [ref=e404] [cursor=pointer]
-                - button "😋" [ref=e405] [cursor=pointer]
-                - button "😎" [ref=e406] [cursor=pointer]
-                - button "😍" [ref=e407] [cursor=pointer]
-                - button "😘" [ref=e408] [cursor=pointer]
-                - button "🥰" [ref=e409] [cursor=pointer]
-                - button "😗" [ref=e410] [cursor=pointer]
-                - button "😙" [ref=e411] [cursor=pointer]
-                - button "😚" [ref=e412] [cursor=pointer]
-                - button "😛" [ref=e413] [cursor=pointer]
-                - button "😜" [ref=e414] [cursor=pointer]
-                - button "😝" [ref=e415] [cursor=pointer]
-                - button "🤑" [ref=e416] [cursor=pointer]
-                - button "🤗" [ref=e417] [cursor=pointer]
-            - textbox "Mesajınız…" [ref=e421]
-            - button "Gönder" [ref=e422] [cursor=pointer]
-      - generic [ref=e424]:
-        - paragraph [ref=e430]: Üyeler (1)
-        - generic [ref=e432]:
-          - generic [ref=e433]:
-            - generic [ref=e434]:
-              - paragraph [ref=e436]: Yönetici
-              - generic [ref=e437]: "1"
-            - generic [ref=e438]:
-              - generic [ref=e439]: G1
-              - generic "Gezgin-15293D10" [ref=e444]
-          - generic [ref=e447]:
-            - paragraph [ref=e449]: "@everyone"
-            - generic [ref=e450]: "0"
-  - button [ref=e451] [cursor=pointer]
+              - textbox "Emoji ara..." [active] [ref=e153]
+              - generic [ref=e154]:
+                - button "Gülümler & Duygular" [ref=e155] [cursor=pointer]
+                - button "İnsanlar & Vücut" [ref=e156] [cursor=pointer]
+                - button "Hayvanlar & Doğa" [ref=e157] [cursor=pointer]
+                - button "Yemek & İçecek" [ref=e158] [cursor=pointer]
+                - button "Etkinlik" [ref=e159] [cursor=pointer]
+                - button "Seyahat & Yerler" [ref=e160] [cursor=pointer]
+                - button "Nesneler" [ref=e161] [cursor=pointer]
+                - button "Semboller" [ref=e162] [cursor=pointer]
+                - button "Bayraklar" [ref=e163] [cursor=pointer]
+            - textbox "Mesajınız…" [ref=e168]
+            - button "Gönder" [ref=e169] [cursor=pointer]
+      - generic [ref=e171]:
+        - paragraph [ref=e177]: Üyeler (1)
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - paragraph [ref=e183]: Yönetici
+              - generic [ref=e184]: "1"
+            - generic [ref=e185]:
+              - generic [ref=e186]: GA
+              - generic "Gezgin-A88BE4D6" [ref=e191]
+          - generic [ref=e194]:
+            - paragraph [ref=e196]: "@everyone"
+            - generic [ref=e197]: "0"
+  - button [ref=e198] [cursor=pointer]
   - generic:
     - alert:
       - generic:
@@ -385,16 +127,16 @@ Received:    720
         - paragraph: Sunucu oluşturuldu
         - paragraph: Yeni sunucunuz hazır.
       - button "Bildirimi kapat"
-  - generic [ref=e457]:
-    - generic [ref=e458]:
-      - heading "Yeni sürüm hazır" [level=3] [ref=e466]
-      - button "Kapat" [ref=e467] [cursor=pointer]
-    - generic [ref=e471]: vlocal → v0dbc669
-    - generic [ref=e472]: Yeni sürüm yayınlandı
-    - generic [ref=e473]:
-      - button "Şimdi güncelle" [ref=e474] [cursor=pointer]
-      - button "Sonra" [ref=e477] [cursor=pointer]
-    - generic [ref=e478]: Otomatik güncellenmesi 25 saniye kaldı
+  - generic [ref=e204]:
+    - generic [ref=e205]:
+      - heading "Yeni sürüm hazır" [level=3] [ref=e213]
+      - button "Kapat" [ref=e214] [cursor=pointer]
+    - generic [ref=e218]: vlocal → v0dbc669
+    - generic [ref=e219]: Yeni sürüm yayınlandı
+    - generic [ref=e220]:
+      - button "Şimdi güncelle" [ref=e221] [cursor=pointer]
+      - button "Sonra" [ref=e224] [cursor=pointer]
+    - generic [ref=e225]: Otomatik güncellenmesi 25 saniye kaldı
 ```
 
 # Test source

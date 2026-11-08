@@ -14,14 +14,14 @@
 ```
 Error: expect(locator).toBeVisible() failed
 
-Locator: locator('[data-sidebar] button[aria-label*="kanal ekle"], [data-sidebar] button[aria-label*="Kanal ekle"]').first()
+Locator: locator('[role="dialog"]').filter({ hasText: /Yeni kanal/i })
 Expected: visible
-Timeout: 10000ms
+Timeout: 5000ms
 Error: element(s) not found
 
 Call log:
-  - Expect "toBeVisible" locator('[data-sidebar] button[aria-label*="kanal ekle"], [data-sidebar] button[aria-label*="Kanal ekle"]').first() with timeout 10000ms
-  - waiting for locator('[data-sidebar] button[aria-label*="kanal ekle"], [data-sidebar] button[aria-label*="Kanal ekle"]').first()
+  - Expect "toBeVisible" locator('[role="dialog"]').filter({ hasText: /Yeni kanal/i }) with timeout 5000ms
+  - waiting for locator('[role="dialog"]').filter({ hasText: /Yeni kanal/i })
 
 ```
 
@@ -29,7 +29,7 @@ Call log:
 - button "Sunucu ayarları"
 - button "Test Sunucusu": TS
 - button "Yeni sunucu oluştur"
-- text: GD
+- text: G6
 - button "Kullanıcı ayarları"
 - complementary:
   - button "Test Sunucusu sunucu ayarları":
@@ -38,16 +38,16 @@ Call log:
     - paragraph: 1 üye
   - button "Davet linki oluştur": Davet et
   - paragraph: GENEL
+  - button "GENEL kategorisine kanal ekle"
   - button "genel"
   - button "rastgele"
   - paragraph: SES
+  - button "SES kategorisine kanal ekle"
   - button "Genel Ses"
   - button "Oyun Odası"
-  - textbox "Yeni kanal adı…"
-  - button "Kanal oluştur" [disabled]
   - button "Üye listesini aç/kapa": Üyeler
-  - text: GD
-  - paragraph: Gezgin-DFADEECF
+  - text: G6
+  - paragraph: Gezgin-65425DF0
   - text: Çevrimiçi
   - button "Mikrofonu kapat"
   - button "Kulaklığı kapat"
@@ -68,8 +68,10 @@ Call log:
   - textbox "Mesajınız…"
   - button "Gönder"
 - paragraph: Üyeler (1)
+- paragraph: Yönetici
+- text: 1 G6 Gezgin-65425DF0
 - paragraph: "@everyone"
-- text: 1 GD Gezgin-DFADEECF
+- text: "0"
 - button
 - alert:
   - img
@@ -85,8 +87,8 @@ Call log:
     - img
 - alert:
   - img
-  - paragraph: Güncelleniyor...
-  - paragraph: Uygulama yenileniyor
+  - paragraph: Sunucu oluşturuldu
+  - paragraph: Yeni sunucunuz hazır.
   - button "Bildirimi kapat":
     - img
 - heading "Yeni sürüm hazır" [level=3]
@@ -132,14 +134,14 @@ Call log:
   30  |   test('yeni kanal oluştur (emoji logolu) -> mesaj at -> rozet görünmeli -> tıkla -> profil açılmalı', async ({ page }) => {
   31  |     // 1. Sidebar'da kanal ekle butonunu bul (ilk kategorideki + butonu)
   32  |     const createChannelBtn = page.locator('[data-sidebar] button[aria-label*="kanal ekle"], [data-sidebar] button[aria-label*="Kanal ekle"]').first()
-> 33  |     await expect(createChannelBtn).toBeVisible({ timeout: 10000 })
-      |                                    ^ Error: expect(locator).toBeVisible() failed
+  33  |     await expect(createChannelBtn).toBeVisible({ timeout: 10000 })
   34  |     await createChannelBtn.click()
   35  |     await page.waitForTimeout(500)
   36  | 
   37  |     // 2. Kanal oluşturma modalı açılmalı
   38  |     const modal = page.locator('[role="dialog"]').filter({ hasText: /Yeni kanal/i })
-  39  |     await expect(modal).toBeVisible({ timeout: 5000 })
+> 39  |     await expect(modal).toBeVisible({ timeout: 5000 })
+      |                         ^ Error: expect(locator).toBeVisible() failed
   40  | 
   41  |     // 3. Kanal adı gir
   42  |     await modal.locator('input[placeholder*="kanal" i]').first().fill('test-kanal')
@@ -234,4 +236,10 @@ Call log:
   131 | 
   132 |     // Kategori sekmeleri var mı?
   133 |     const categories = ['Gülümler', 'İnsanlar', 'Hayvanlar', 'Yemek', 'Etkinlik', 'Seyahat', 'Nesneler', 'Semboller', 'Bayraklar']
+  134 |     let foundCategories = 0
+  135 |     for (const cat of categories) {
+  136 |       const tab = page.locator(`button:has-text("${cat}")`).first()
+  137 |       if (await tab.count() > 0) {
+  138 |         console.log(`✅ Kategori sekmesi bulundu: ${cat}`)
+  139 |         foundCategories++
 ```

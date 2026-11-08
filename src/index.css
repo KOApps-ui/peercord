@@ -28,9 +28,9 @@
   color-scheme: dark;
 
   /* Yüzeyler */
-  --pc-bg: 254 26% 8%;
-  --pc-bg-deep: 255 32% 5%;
-  --pc-surface: 255 20% 12%;
+  --pc-bg: 254 28% 11%;
+  --pc-bg-deep: 255 35% 4%;
+  --pc-surface: 255 24% 10%;
   --pc-surface-raised: 255 18% 16%;
   --pc-surface-overlay: 256 22% 19%;
   --pc-surface-hover: 255 16% 20%;
@@ -39,15 +39,15 @@
   --pc-border-soft: 255 14% 20%;
 
   /* Metin */
-  --pc-text: 250 30% 96%;
-  --pc-text-muted: 250 12% 70%;
+  --pc-text: 250 30% 95%;
+  --pc-text-muted: 250 12% 72%;
   --pc-text-subtle: 250 10% 55%;
   --pc-text-inverse: 255 40% 8%;
 
   /* Marka */
   --pc-accent: 245 85% 65%;
   --pc-accent-hover: 245 88% 70%;
-  --pc-accent-soft: 245 60% 30%;
+  --pc-accent-soft: 245 60% 28%;
   --pc-accent-text: 245 100% 92%;
   --pc-violet: 268 82% 66%;
   --pc-cyan: 189 92% 62%;
@@ -63,11 +63,18 @@
   --pc-warning: 38 92% 58%;
 
   /* Ölçü */
-  --pc-rail-w: 76px;
-  --pc-sidebar-w: 248px;
-  --pc-members-w: 244px;
-  --pc-header-h: 52px;
+  --pc-rail-w: 72px;
+  --pc-sidebar-w: 240px;
+  --pc-members-w: 240px;
+  --pc-header-h: 48px;
   --pc-composer-max: 900px;
+
+  /* Tipografi ölçeği */
+  --pc-text-chat: 15px;
+  --pc-text-chat-lh: 1.375;
+  --pc-text-sidebar: 14px;
+  --pc-text-category: 11px;
+  --pc-text-time: 11px;
 
   /* Blur / cam */
   --pc-glass: 255 24% 12% / 0.72;
@@ -99,9 +106,9 @@
 
 [data-theme='amoled'] {
   color-scheme: dark;
-  --pc-bg: 0 0% 0%;
+  --pc-bg: 0 0% 6%;
   --pc-bg-deep: 0 0% 0%;
-  --pc-surface: 0 0% 4%;
+  --pc-surface: 0 0% 5%;
   --pc-surface-raised: 0 0% 7%;
   --pc-surface-overlay: 0 0% 9%;
   --pc-surface-hover: 0 0% 11%;
@@ -232,9 +239,34 @@
     mask-image: linear-gradient(to bottom, transparent 0, black 12px, black calc(100% - 12px), transparent 100%);
   }
 
+  /* Kaydırma kapanışı üstte */
+  .pc-scroll-fade-top {
+    mask-image: linear-gradient(to bottom, black 0, black 20px, transparent 100%);
+  }
+
+  .pc-divider {
+    height: 1px;
+    background: hsl(var(--pc-border-soft));
+    width: 100%;
+  }
+
   .pc-no-drag {
     -webkit-user-drag: none;
     user-select: none;
+  }
+
+  /* Katmansız, gölgesiz düz panel */
+  .pc-panel-flat {
+    background: hsl(var(--pc-surface));
+    border: 1px solid hsl(var(--pc-border-soft));
+  }
+
+  /* Kanal/üye satırı hover durumu */
+  .pc-row-hover {
+    transition: background-color 0.15s ease;
+  }
+  .pc-row-hover:hover {
+    background-color: hsl(var(--pc-surface-hover));
   }
 }
 

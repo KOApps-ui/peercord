@@ -35,7 +35,7 @@ test.describe('Kanal rozeti ve EmojiPicker', () => {
     await page.waitForTimeout(500)
 
     // 2. Kanal oluşturma modalı açılmalı
-    const modal = page.locator('[role="dialog"]').filter({ hasText: /Yeni kanal/i })
+    const modal = page.locator('[role="dialog"]').filter({ hasText: /Yeni kanal oluştur/i })
     await expect(modal).toBeVisible({ timeout: 5000 })
 
     // 3. Kanal adı gir
@@ -173,7 +173,7 @@ test.describe('Ekran görüntüleri', () => {
     const createBtn = page.locator('[data-sidebar] button[aria-label*="kanal ekle"]').first()
     if (await createBtn.count() > 0) {
       await createBtn.click()
-      const modal = page.locator('[role="dialog"]').filter({ hasText: /Yeni kanal/i })
+      const modal = page.locator('[role="dialog"]').filter({ hasText: /Yeni kanal oluştur/i })
       await expect(modal).toBeVisible({ timeout: 5000 })
       await modal.locator('input[placeholder*="kanal" i]').first().fill('ss-kanal')
       await modal.locator('button:has-text("Oluştur")').click()

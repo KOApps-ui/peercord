@@ -11,21 +11,27 @@ p.on('console', m => console.log(m.type().toUpperCase()+':', m.text().slice(0, 2
 p.on('pageerror', e => console.log('PE:', e.message))
 
 await p.goto('http://localhost:5180/', { waitUntil: 'domcontentloaded' })
-await p.waitForTimeout(3500)
+await p.getByRole('button', { name: /Sunucu Oluştur/ }).waitFor({ state: 'visible', timeout: 30000 })
 console.log('title:', await p.title())
 
 // --- Oda oluştur ---
-await p.getByRole('button', { name: 'Sunucu Oluştur' }).first().click()
+const createBtn = p.getByRole('button', { name: /Sunucu Oluştur/ })
+if (await createBtn.count() === 0) {
+  console.log('HATA: Sunucu Oluştur butonu bulunamadı')
+  await b.close()
+  process.exit(1)
+}
+await createBtn.first().click()
 await p.waitForTimeout(400)
 const d = p.locator('[role="dialog"]')
-await d.getByLabel('Sunucu adı').fill('Profil Testi')
+await d.getByLabel(/Sunucu adı/i).fill('Profil Testi')
 await p.waitForTimeout(300)
-await d.getByRole('button', { name: 'Sunucu Oluştur' }).click()
+await d.getByRole('button', { name: /Sunucu Oluştur/ }).click()
 await p.waitForTimeout(3000)
 
 // --- Kullanıcı ayarlarını aç ---
-await p.getByLabel('Kullanıcı ayarları').first().click()
-await p.waitForTimeout(1500)
+await p.locator('[aria-label="Kullanıcı ayarları"]').first().evaluate(el => el.parentElement?.click())
+await p.waitForTimeout(1200)
 console.log('menu count:', await p.locator('[role="menu"]').count())
 await p.getByText('Ayarları aç').first().click()
 await p.waitForTimeout(800)
@@ -57,8 +63,7 @@ const gifNatural = await p.evaluate(() => {
 })
 console.log('GIF natural size:', JSON.stringify(gifNatural))
 
-// Kendi avatar UserPanel'de
-console.log('userpanel avatar img count:', await p.locator('img[src^="data:image/gif"], img[src^="data:image/png"]').count())
+console.log('all data-image img count:', await p.locator('img[src^="data:image/"]').count())
 
 await p.screenshot({ path: '/tmp/pc-profile-1440.png', fullPage: true })
 await b.close()
