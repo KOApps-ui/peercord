@@ -308,10 +308,23 @@ export const useAppStore = create<StoreWithInternals>()(
             break
           }
           case 'message': {
-            // Gelen mesajı Yjs'e ekle
+            // Gelen mesajı Yjs'e ve store'a ekle
+            const message = payload as import('@/types').Message
+            console.log('[handleMessage] received:', message.id, 'channelId:', message.channelId)
             if (_yjs) {
-              addMessageToYjs(_yjs, payload.channelId, payload)
+              addMessageToYjs(_yjs, message.channelId, message)
             }
+            // Store'da da güncelle (UI görünmesi için)
+            set(state => {
+              console.log('[handleMessage] updating messages, channel:', message.channelId)
+              return {
+                messages: {
+                  ...state.messages,
+                  [message.channelId]: [...(state.messages[message.channelId] || []), message],
+                },
+                lastActivity: { ...state.lastActivity, [message.channelId]: message.createdAt },
+              }
+            })
             break
           }
         }
@@ -585,6 +598,8 @@ export const useAppStore = create<StoreWithInternals>()(
             connection: { status: 'connected', peerCount: 0, roomId, strategy: 'nostr' },
             ready: true,
             me: { ...me, roleIds: [guild.roles[1]?.id || ''] }, // Owner rolü
+            _yjs,  // Store'a ekle
+            _textTransport,  // Store'a ekle
           })
 
           // Kendi profilini Yjs'e kaydet
@@ -662,6 +677,8 @@ export const useAppStore = create<StoreWithInternals>()(
             activeChannelId: firstTextChannel?.id || null,
             connection: { status: 'connected', peerCount: 0, roomId, strategy: 'nostr' },
             ready: true,
+            _yjs,  // Store'a ekle
+            _textTransport,  // Store'a ekle
           })
 
           // Kendi profilini Yjs'e kaydet
@@ -841,8 +858,13 @@ export const useAppStore = create<StoreWithInternals>()(
 
         /* Mesaj */
         sendMessage: async (channelId: ID, content: string, options: SendMessageOptions = {}) => {
-          const { me, guild, _yjs: yjs, _textTransport: transport } = get()
-          if (!me || !guild || !yjs || !transport) return
+          const state = get()
+          console.log('[sendMessage] state check:', { me: !!state.me, guild: !!state.guild, yjs: !!state._yjs, transport: !!state._textTransport })
+          const { me, guild, _yjs: yjs, _textTransport: transport } = state
+          if (!me || !guild || !yjs || !transport) {
+            console.error('[sendMessage] missing state:', { me: !!me, guild: !!guild, yjs: !!yjs, transport: !!transport })
+            return
+          }
 
           const message: Message = {
             id: uid('msg'),
@@ -886,7 +908,13 @@ export const useAppStore = create<StoreWithInternals>()(
           }
 
           // Broadcast (Yjs update zaten gider ama mesaj bildirimi için)
-          await transport.broadcast('message', message).catch(console.error)
+          console.log('[sendMessage] broadcasting message:', message.id, 'channelId:', channelId)
+          try {
+            await transport.broadcast('message', message)
+            console.log('[sendMessage] broadcast successful')
+          } catch (e) {
+            console.error('[Store] broadcast hatası:', e)
+          }
 
           // Pending kaldır
           setTimeout(() => {
@@ -1293,10 +1321,11 @@ export const useAppStore = create<StoreWithInternals>()(
       return {
         ...initialState,
         actions,
-        _yjs: null,
-        _audio: null,
-        _textTransport: null,
-        _voiceTransport: null,
+        // İç değişkenler state'e de ekle (actions'dan erişim için)
+        _yjs,
+        _audio,
+        _textTransport,
+        _voiceTransport,
         _unsubs,
         _typingTimers,
         _pendingMessages,
