@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useAppStore, useActions } from '@/lib/store'
+import { useAppStore } from '@/lib/store'
 import { Button } from '@/ui/primitives'
 import { Menu, MenuTrigger, MenuContent, MenuItem } from '@/ui/primitives'
 import { AttachmentCard } from './AttachmentCard'
@@ -239,8 +239,6 @@ function parseMarkdown(text: string): React.ReactNode {
             )
           case 'text':
             return <span key={i}>{part.content}</span>
-          default:
-            return <span key={i}>{part.content}</span>
         }
       })}
     </div>
@@ -258,14 +256,13 @@ export function MessageItem({
   onSave,
   onCancel,
 }: MessageItemProps) {
-  const { editMessage, deleteMessage, toggleReaction } = useActions()
-
   const authorId = message.authorId
   const isOwnMessage = authorId === myUserId
 
   // Determine user accent hue
   const user = useAppStore(state => state.members[authorId])
   const accentHue = user?.accentHue ?? message.authorHue
+  const avatarGradientStyle = `linear-gradient(140deg, hsl(${accentHue} 78% 62%) 0%, hsl(${(accentHue + 46) % 360} 82% 52%) 100%)`
 
   // Inline editing state
   const [editing, setEditing] = React.useState(initialIsEditing)
@@ -304,11 +301,10 @@ export function MessageItem({
       <div className="flex items-start gap-3">
 
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-hsl(
-          {accentHue}
-          78%
-          62%
-        ) to-hsl({(accentHue + 46) % 360} 82% 52%) flex items-center justify-center flex-shrink-0">
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: avatarGradientStyle } as React.CSSProperties}
+        >
           {message.authorName[0]!.toUpperCase()}
         </div>
 
@@ -351,7 +347,7 @@ export function MessageItem({
           <Reactions
             reactions={message.reactions}
             myUserId={myUserId}
-            onToggleReaction={(emoji: string) => onReact?.(message.id, emoji)}
+            onToggleReaction={async (emoji: string) => { await onReact?.(message.id, emoji); }}
           />
 
         </div>

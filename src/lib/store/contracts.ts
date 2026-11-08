@@ -139,6 +139,9 @@ export interface AppStoreState {
   ready: boolean
   /** Global hata bandı */
   error: string | null
+  /** Toast gönder / iptal et */
+  pushToast: (toast: Omit<ToastMessage, 'id'>) => void
+  dismissToast: (id: ID) => void
 
   /* Aktarımlar */
   transfers: Record<string, { name: string; progress: number; direction: 'send' | 'receive' }>

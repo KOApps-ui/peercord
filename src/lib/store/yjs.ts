@@ -4,8 +4,7 @@
  */
 import * as Y from 'yjs'
 import { IndexeddbPersistence } from 'y-indexeddb'
-import type { Guild, Message, UserProfile, ID, UnixMs, Channel } from '@/types'
-import { uid } from '@/lib/utils'
+import type { Guild, Message, UserProfile, ID } from '@/types'
 import { YJS_KEYS } from '@/lib/p2p/contracts'
 import type { P2PTransport } from '@/lib/p2p/contracts'
 

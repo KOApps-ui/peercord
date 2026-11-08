@@ -9,7 +9,6 @@ import type {
   AppStoreState,
   AppStoreActions,
   Channel,
-  ChannelType,
   Guild,
   ID,
   Message,
@@ -24,13 +23,10 @@ import type {
   VoiceMemberState,
   UserProfile,
   ConnectionInfo,
-  UnixMs,
   ChannelDraft,
   CreateGuildOptions,
   JoinGuildOptions,
   SendMessageOptions,
-  FileTransferHandle,
-  Attachment,
   Permission,
   Unsubscribe,
 } from '@/lib/store/contracts'
@@ -42,29 +38,23 @@ import {
   updateMessageInYjs,
   deleteMessageInYjs,
   toggleReactionInYjs,
-  getMessagesFromYjs,
   getProfileFromYjs,
-  getAllProfilesFromYjs,
   updateReadInYjs,
-  getReadFromYjs,
   setGuildInYjs,
 } from './yjs'
 import { createAudioManager, type AudioManager } from './audio'
 import {
   createTransport,
-  deriveRoomId,
   parseInvite,
   makeInviteLink,
   createIdentity,
   loadIdentity,
-  saveIdentity,
   updateIdentityName,
   getUserId,
   generateAccentHue,
 } from '@/lib/p2p'
 import { createDefaultGuild, ensureEveryoneRole } from './seed'
-import { uid, debounce, formatRelative, seedHue } from '@/lib/utils'
-import { YJS_KEYS } from '@/lib/p2p/contracts'
+import { uid } from '@/lib/utils'
 import type { P2PTransport } from '@/lib/p2p/contracts'
 
 /* --------------------------- Varsayılan Ayarlar --------------------------- */
@@ -150,6 +140,8 @@ const initialState: AppStoreState = {
   searchQuery: '',
   ready: false,
   error: null,
+  pushToast: (toast) => {},
+  dismissToast: () => {},
   transfers: {},
 }
 
@@ -418,7 +410,7 @@ export const useAppStore = create<StoreWithInternals>()(
         size: number
         mime: string
       }): void {
-        const { transferId, peerId, fromUserId, fromName, name, size, mime } = offer
+        const { transferId, name } = offer
 
         // Otomatik kabul
         if (_textTransport) {
@@ -426,12 +418,12 @@ export const useAppStore = create<StoreWithInternals>()(
         }
 
         // Transfer durumunu takip et
-        set((state: AppStoreState) => ({
+        set({
           transfers: {
-            ...state.transfers,
+            ...(globalThis as any).transfers || {},
             [transferId]: { name, progress: 0, direction: 'receive' },
           },
-        }))
+        })
 
         // Progress dinle
         const unsubProgress = _textTransport?.onFileProgress((p: {

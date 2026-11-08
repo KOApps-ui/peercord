@@ -63,8 +63,6 @@ export const DEFAULT_ROLES: Role[] = [
   },
 ]
 
-const EVERYONE_ROLE_ID = DEFAULT_ROLES[0]!.id
-
 /* ---------------------------- Kategoriler ---------------------------- */
 
 export function createDefaultCategories(): Category[] {
