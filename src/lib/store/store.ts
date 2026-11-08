@@ -307,6 +307,13 @@ export const useAppStore = create<StoreWithInternals>()(
             }
             break
           }
+          case 'message': {
+            // Gelen mesajı Yjs'e ekle
+            if (_yjs) {
+              addMessageToYjs(_yjs, payload.channelId, payload)
+            }
+            break
+          }
         }
       }
 
@@ -633,7 +640,7 @@ export const useAppStore = create<StoreWithInternals>()(
 
           // Guild state'in gelmesini bekle (basit polling)
           let attempts = 0
-          while (attempts < 50) {
+          while (attempts < 200) {
             await new Promise(r => setTimeout(r, 100))
             if (_yjs.guild) break
             attempts++

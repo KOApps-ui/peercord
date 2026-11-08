@@ -6,6 +6,7 @@ import {
   useChannelGroups,
   useGuild,
   useActiveChannel,
+  useMembers,
 } from '@/lib/store'
 import { Input, ScrollArea } from '@/ui/primitives'
 import { Plus, Mail, ChevronRight, Users } from 'lucide-react'
@@ -14,6 +15,7 @@ import { UserPanel } from './UserPanel'
 
 export function ChannelSidebar(): React.ReactNode {
   const guild = useGuild()
+  const members = useMembers()
   const activeChannel = useActiveChannel()
   const groups = useChannelGroups()
   const { openModal, selectChannel, createChannel, toggleMembers } = useActions()
@@ -69,7 +71,7 @@ export function ChannelSidebar(): React.ReactNode {
               {guild.name}
             </p>
             <p className="text-[11px] text-[hsl(var(--pc-text-subtle))] truncate">
-              {guild.channels.length} üye
+              {members.length} üye
             </p>
           </div>
           <ChevronRight className="ml-auto shrink-0 h-3.5 w-3.5 text-[hsl(var(--pc-text-subtle))]" />
@@ -129,44 +131,48 @@ export function ChannelSidebar(): React.ReactNode {
             </motion.div>
           )}
 
-          <motion.form
-            onSubmit={handleCreate}
-            whileTap={{ scale: 0.98 }}
-            className="mt-2 px-1"
-          >
-            <div className="relative">
-              <Input
-                value={newChannelName}
-                onChange={(e) => setNewChannelName(e.target.value)}
-                placeholder="Yeni kanal adı…"
-                className="text-xs pl-8 pr-24"
-              />
-              <button
-                type="submit"
-                disabled={creating || !newChannelName.trim()}
-                aria-label="Kanal oluştur"
-                className={cn(
-                  'absolute right-1 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full',
-                  'text-[hsl(var(--pc-accent))] hover:bg-[hsl(var(--pc-accent-soft))]/50 transition-colors duration-150',
-                  'disabled:opacity-50 disabled:pointer-events-none',
-                )}
-              >
-                <Plus className="h-3 w-3" />
-              </button>
-            </div>
-          </motion.form>
-
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => toggleMembers()}
-            aria-label="Üye listesini aç/kapa"
-            title="Üye listesi"
-            className="flex w-full items-center justify-center gap-2 px-2 py-1.5 rounded-[var(--radius-md)] text-xs font-medium text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-surface-hover))] hover:text-[hsl(var(--pc-text))] transition-colors duration-150"
-          >
-            <Users className="h-3.5 w-3.5" /> Üyeler
-          </motion.button>
         </div>
       </ScrollArea>
+
+      {/* Kanal oluşturma alanı + Üyeler butonu — kanal listesinin hemen altında, UserPanel'e yapışık */}
+      <div className="flex flex-col gap-1 px-1 pt-1">
+        <motion.form
+          onSubmit={handleCreate}
+          whileTap={{ scale: 0.98 }}
+          className="mt-2 px-1"
+        >
+          <div className="relative">
+            <Input
+              value={newChannelName}
+              onChange={(e) => setNewChannelName(e.target.value)}
+              placeholder="Yeni kanal adı…"
+              className="text-xs pl-8 pr-24"
+            />
+            <button
+              type="submit"
+              disabled={creating || !newChannelName.trim()}
+              aria-label="Kanal oluştur"
+              className={cn(
+                'absolute right-1 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full',
+                'text-[hsl(var(--pc-accent))] hover:bg-[hsl(var(--pc-accent-soft))]/50 transition-colors duration-150',
+                'disabled:opacity-50 disabled:pointer-events-none',
+              )}
+            >
+              <Plus className="h-3 w-3" />
+            </button>
+          </div>
+        </motion.form>
+
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={() => toggleMembers()}
+          aria-label="Üye listesini aç/kapa"
+          title="Üye listesi"
+          className="flex w-full items-center justify-center gap-2 px-2 py-1.5 rounded-[var(--radius-md)] text-xs font-medium text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-surface-hover))] hover:text-[hsl(var(--pc-text))] transition-colors duration-150"
+        >
+          <Users className="h-3.5 w-3.5" /> Üyeler
+        </motion.button>
+      </div>
 
       {/* Alt banda: UserPanel (sidebar içinde, rail'de değil) — 64px */}
       <motion.div

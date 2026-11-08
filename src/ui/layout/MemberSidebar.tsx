@@ -3,8 +3,8 @@ import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { useAppStore, useGuild, useMembers } from '@/lib/store'
 import type { Role, ID } from '@/types'
-import { Avatar, Dot, Badge } from '@/ui/primitives'
-import { User, ShieldCheck, Clock, UserX, Sliders } from 'lucide-react'
+import { Avatar, Dot } from '@/ui/primitives'
+import { ShieldCheck, Clock, UserX } from 'lucide-react'
 
 export function MemberSidebar(): ReactNode {
   const guild = useGuild()
@@ -12,13 +12,6 @@ export function MemberSidebar(): ReactNode {
   useAppStore((s) => s.ready)
 
   if (!guild) return null
-
-  const onlineMembers = members.filter(
-    (m) => m.status === 'online',
-  )
-  const offlineMembers = members.filter(
-    (m) => m.status !== 'online',
-  )
 
   const hoistedRoles = guild.roles.filter((r: Role) => r.hoist).sort((a: Role, b: Role) => b.position - a.position)
   const roleMemberMap = new Map<ID, { role: Role; members: typeof members }>()
@@ -48,12 +41,7 @@ export function MemberSidebar(): ReactNode {
           </p>
         </div>
         <div className="flex items-center gap-1">
-          <Badge tone="neutral">
-            <UserX className="mr-1 h-3 w-3" /> Çevrimdışı
-          </Badge>
-          <Badge tone="success">
-            <Dot status="online" className="mr-1 h-2 w-2" /> Çevrimiçi
-          </Badge>
+          {/* sağda sadece ikon butonlar */}
         </div>
       </div>
 
@@ -104,9 +92,12 @@ export function MemberSidebar(): ReactNode {
               <p className="text-xs font-semibold text-[hsl(var(--pc-text-muted))] uppercase tracking-wider">
                 @everyone
               </p>
+              <span className="ml-auto text-[10px] text-[hsl(var(--pc-text-subtle))]">
+                {members.length}
+              </span>
             </div>
             <AnimatePresence>
-              {onlineMembers.map((m, i) => (
+              {members.map((m, i) => (
                 <MemberRow
                   key={m.userId}
                   member={m}
@@ -118,49 +109,9 @@ export function MemberSidebar(): ReactNode {
             </AnimatePresence>
           </motion.div>
 
-          {offlineMembers.length > 0 && (
-            <motion.div
-              key="offline"
-              layout
-              className="flex flex-col gap-1"
-            >
-              <div className="flex items-center gap-2 px-2 py-1.5">
-                <span
-                  className="flex h-2 w-2 rounded-full shrink-0"
-                  style={{ backgroundColor: 'hsl(var(--pc-offline))' }}
-                />
-                <p className="text-xs font-semibold text-[hsl(var(--pc-text-muted))] uppercase tracking-wider">
-                  Çevrimdışı
-                </p>
-                <span className="ml-auto text-[10px] text-[hsl(var(--pc-text-subtle))]">
-                  {offlineMembers.length}
-                </span>
-              </div>
-              <AnimatePresence>
-                {offlineMembers.map((m, i) => (
-                  <MemberRow
-                    key={m.userId}
-                    member={m}
-                    delay={i * 0.04}
-                    accentHue={m.accentHue}
-                    showRole={false}
-                  />
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          )}
         </div>
       </div>
 
-      <div className="flex h-[var(--pc-header-h)] shrink-0 items-center justify-between px-3 border-t border-[hsl(var(--pc-border-soft))]">
-        <div className="flex items-center gap-2">
-          <Sliders className="h-4 w-4 text-[hsl(var(--pc-text-muted))]" />
-          <p className="text-xs text-[hsl(var(--pc-text-muted))]">Ayarlar</p>
-        </div>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-surface-hover))] transition-colors">
-          <User className="h-4 w-4" />
-        </div>
-      </div>
     </motion.div>
   )
 }

@@ -347,6 +347,9 @@ export class P2PTransportImpl implements P2PTransport {
       case 'file-reject':
         // Transfer modülü handle eder
         break;
+      case 'message':
+        // Yjs mesajları burada hanser edilir
+        break;
     }
 
     // Diğer handler'lara ilet

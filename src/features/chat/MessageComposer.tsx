@@ -10,6 +10,7 @@ type MessageComposerProps = {
 export function MessageComposer({ channelId }: MessageComposerProps) {
   const { sendMessage } = useAppStore.getState().actions
   const [emojiOpen, setEmojiOpen] = React.useState(false)
+  const [draft, setDraft] = React.useState('')
 
   if (!channelId) {
     return null
@@ -18,6 +19,7 @@ export function MessageComposer({ channelId }: MessageComposerProps) {
   const handleSend = async (content: string) => {
     if (!content.trim()) return
     await sendMessage(channelId, content)
+    setDraft('') // Gönderildikten sonra temizle
   }
 
   return (
@@ -65,13 +67,12 @@ export function MessageComposer({ channelId }: MessageComposerProps) {
         <div className="flex-1 min-w-0">
           <Textarea
             placeholder="Mesajınız…"
-            value=""
-            onChange={() => {}}
+            value={draft}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDraft(e.target.value)}
             onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
-                const content = (e.target as HTMLTextAreaElement).value
-                handleSend(content)
+                handleSend(draft)
               }
             }}
             className="flex w-full min-w-0 rounded-[var(--radius-md)] border border-[hsl(var(--pc-border))] bg-[hsl(var(--pc-surface))] px-3 py-2 text-sm text-[hsl(var(--pc-text))] placeholder-[hsl(var(--pc-text-subtle))] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[hsl(var(--pc-accent))/0.9] focus-visible:border-transparent resize-none"

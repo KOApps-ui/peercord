@@ -25,8 +25,8 @@ export function Tooltip({
 }: TooltipProps) {
   return (
     <RadixTooltipRoot {...(delay != null ? { delay } : {})}>
-      <TooltipTrigger>{children}</TooltipTrigger>
-      <TooltipContent side={side} className="pc-tooltip-content" forceMount={true}>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent side={side} className="pc-tooltip-content">
         <span className="text-xs text-[hsl(var(--pc-text-inverse))]">{label}</span>
       </TooltipContent>
     </RadixTooltipRoot>

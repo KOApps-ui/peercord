@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 import { useAppStore, useActions, useMe } from '@/lib/store'
 import { Tooltip } from '@/ui/primitives'
 import { GuildIcon, Avatar } from '@/ui/primitives'
-import { ShieldCheck, Plus, Settings, LogOut, Menu } from 'lucide-react'
+import { ShieldCheck, Plus, Settings } from 'lucide-react'
 
 interface ServerRailProps {
   className?: string
@@ -136,32 +136,18 @@ export function ServerRail({ className }: ServerRailProps): ReactNode {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => openModal('user-settings')}
-          aria-label="Çıkış yap"
-          title="Çıkış yap"
+          aria-label="Kullanıcı ayarları"
+          title="Ayarlar"
           className={cn(
             'flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)]',
-            'bg-[hsl(var(--pc-surface-hover))] text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-danger))/10] hover:text-[hsl(var(--pc-danger))]',
+            'bg-[hsl(var(--pc-surface-hover))] hover:bg-[hsl(var(--pc-surface-active))]',
             'transition-colors duration-150',
           )}
         >
-          <LogOut className="h-5 w-5" />
+          <Settings className="h-5 w-5" />
         </motion.button>
       </div>
     </motion.div>
-
-    <motion.button
-      whileTap={{ scale: 0.9 }}
-      onClick={() => openModal('command-palette')}
-      aria-label="Komut paleti"
-      title="Komut paleti (K)"
-      className={cn(
-        'absolute bottom-2 left-2 flex h-8 w-8 items-center justify-center rounded-full',
-        'bg-[hsl(var(--pc-surface-hover))] text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-accent-soft))] hover:text-[hsl(var(--pc-accent))]',
-        'transition-colors duration-150',
-      )}
-    >
-      <Menu className="h-4 w-4" />
-    </motion.button>
   </>
   )
 }

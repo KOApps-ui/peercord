@@ -54,7 +54,7 @@ export function ToastViewport() {
     return (
       <div
         ref={containerRef}
-        className="fixed bottom-20 right-4 z-[70] w-[360px] flex flex-col gap-2 pointer-events-none"
+        className="fixed bottom-20 right-4 lg:right-[260px] z-[70] w-[360px] flex flex-col gap-2 pointer-events-none"
       >
         <AnimatePresence>
           {toasts.length === 0 && (
@@ -75,7 +75,7 @@ export function ToastViewport() {
   return (
     <div
       ref={containerRef}
-      className="fixed bottom-20 right-4 z-[70] w-[360px] flex flex-col gap-2 pointer-events-none"
+      className="fixed bottom-20 right-4 lg:right-[260px] z-[70] w-[360px] flex flex-col gap-2 pointer-events-none"
     >
       <AnimatePresence initial={false}>
         {toasts.map((toast) => {

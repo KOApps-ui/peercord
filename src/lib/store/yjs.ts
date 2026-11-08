@@ -106,12 +106,22 @@ export function createYjsManager(roomId: string): YjsManager {
   let transport: P2PTransport | null = null
   let debouncedBroadcast: ((update: Uint8Array) => void) | null = null
   let synced = false
+  let syncTimer: ReturnType<typeof setInterval> | null = null
 
   // Guild meta verisini oku
-  const guildData = metaMap.get(YJS_KEYS.guild)
-  if (guildData) {
-    guild = guildData as Guild
+  const readGuild = (): Guild | null => {
+    const data = metaMap.get(YJS_KEYS.guild)
+    return (data as Guild | undefined) ?? null
   }
+
+  guild = readGuild()
+
+  // Uzak güncellemeler geldiğinde guild referansını tazele
+  const metaObserver = () => {
+    const next = readGuild()
+    if (next) guild = next
+  }
+  metaMap.observe(metaObserver)
 
   // Debounced broadcast fonksiyonu
   const broadcastUpdate = (update: Uint8Array) => {
@@ -155,6 +165,17 @@ export function createYjsManager(roomId: string): YjsManager {
     return Y.encodeStateAsUpdate(doc)
   }
 
+  // Güncel dokümanın tamamını eşlere yayınla
+  function sendFullState(): void {
+    if (!transport) return
+    try {
+      const update = getStateAsUpdate()
+      transport.broadcast('yjs', toBase64(update)).catch(() => {})
+    } catch {
+      /* yoksay */
+    }
+  }
+
   // Transport ile senkronize et
   function sync(t: P2PTransport): void {
     transport = t
@@ -175,6 +196,8 @@ export function createYjsManager(roomId: string): YjsManager {
         } catch (e) {
           console.error('[Yjs] Uzak güncelleme uygulanamadı:', e)
         }
+      } else if (envelope.type === 'yjs-request') {
+        sendFullState()
       }
     })
 
@@ -182,15 +205,30 @@ export function createYjsManager(roomId: string): YjsManager {
     // (Yalnızca doc.on('update') yayını yeterli değil: yeni gelen eş
     //  o ana kadarki geçmişi alamıyordu.)
     transport.onPeersChanged((peers) => {
-      if (peers.length === 0) return
-      const update = Y.encodeStateAsUpdate(doc)
-      transport?.broadcast('yjs', toBase64(update)).catch(console.error)
+      if (peers.length > 0) sendFullState()
     })
+
+    // Karşı taraftan henüz state gelmediyse iste
+    transport.broadcast('yjs-request', { at: Date.now() }).catch(() => {})
+    // İlk 30 saniye boyunca 3 sn'de bir tam state yayınla (yakınsama garantisi)
+    let ticks = 0
+    syncTimer = setInterval(() => {
+      ticks++
+      if (ticks > 10) {
+        if (syncTimer) clearInterval(syncTimer)
+        syncTimer = null
+        return
+      }
+      if (transport && transport.peers.size > 0) sendFullState()
+    }, 3000)
   }
 
   // Temizlik
   function destroy(): void {
     if (debounceTimer) clearTimeout(debounceTimer)
+    if (syncTimer) clearInterval(syncTimer)
+    syncTimer = null
+    metaMap.unobserve(metaObserver)
     doc.off('update', updateHandler)
     persistence.destroy()
     doc.destroy()
@@ -203,7 +241,13 @@ export function createYjsManager(roomId: string): YjsManager {
     metaMap,
     profilesMap,
     readsMap,
-    guild,
+    // Getter: uzaktan gelen meta güncellemeleri anında yansısın
+    get guild(): Guild | null {
+      return readGuild() ?? guild
+    },
+    set guild(next: Guild | null) {
+      guild = next
+    },
     messageArrays,
     sync,
     destroy,
