@@ -18,7 +18,7 @@ import {
   MenuContent,
 } from '@/ui/primitives'
 import { Mic, MicOff, VolumeX, Headphones, Settings, User, Clock, CircleDot } from 'lucide-react'
-import type { PresenceStatus } from '@/types'import type { UserProfile } from '@/types'
+import type { PresenceStatus } from '@/types'
 
 export function UserPanel(): ReactNode {
   const me = useMe()

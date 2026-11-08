@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { useAppStore, useGuild, useMembers } from '@/lib/store'
-import type { Role, ID, AppStoreState } from '@/types'
+import type { Role, ID } from '@/types'
 import { Avatar, Dot, Badge } from '@/ui/primitives'
 import { User, ShieldCheck, Clock, UserX, Sliders } from 'lucide-react'
 

@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import type { Channel, ID } from '@/types'
 import {
   useActions,
   useChannelGroups,
@@ -10,7 +9,6 @@ import {
 } from '@/lib/store'
 import { Input, ScrollArea } from '@/ui/primitives'
 import {
-  Hash,
   Plus,
   Users,
   Mail,

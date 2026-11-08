@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { Switch as RadixSwitch, SwitchThumb } from '@radix-ui/react-switch'
 import {
   Slider as RadixSliderRoot,
@@ -87,8 +86,8 @@ export function Slider({
         </div>
       )}
       <RadixSliderRoot
-        value={value}
-        onValueChange={onValueChange}
+        value={[value]}
+        onValueChange={(vals) => onValueChange(vals[0])}
         min={min}
         max={max}
         step={step}

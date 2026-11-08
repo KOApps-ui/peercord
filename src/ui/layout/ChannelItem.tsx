@@ -31,7 +31,7 @@ export function ChannelItem({
     lastActivity[channel.id] > reads[channel.id]
 
   const inVoice = voiceMembers.filter(
-    (m) => (m as { voiceChannelId: ID }).voiceChannelId === channel.id,
+    (m) => (m as unknown as { voiceChannelId: ID }).voiceChannelId === channel.id,
   )
 
   const handleClick = () => onSelect(channel.id)
