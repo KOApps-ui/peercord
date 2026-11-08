@@ -92,7 +92,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
 
   return (
     <Popover>
-      <PopoverTrigger className={className}>
+      <PopoverTrigger className={cn('fixed top-4 right-4 z-40 lg:right-[260px]', className)}>
         <span className="relative flex items-center">
           <Bell size={16} aria-hidden="true" />
           {badgeCount > 0 && (

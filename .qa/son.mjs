@@ -141,6 +141,19 @@ async function run() {
     const okNoDup = meas.duplicates.length === 0 && meas.names.length === 2;
     const okNoOverflow = meas.scrollWidth === meas.innerWidth;
     const okNoNested = nestedBtnWarns.length === 0;
+    const strayButtons = await pageA.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll('button'));
+      return buttons.filter(b => {
+        const r = b.getBoundingClientRect();
+        return r.x < 72 && r.y > 860 && r.width > 0 && r.height > 0;
+      }).map(b => {
+        const r = b.getBoundingClientRect();
+        return { x: Math.round(r.x), y: Math.round(r.y), className: b.className || '' };
+      });
+    });
+    log('SOL ALT KACAK BUTON SAYISI: ' + strayButtons.length);
+    if (strayButtons.length) log('kacak butonlar: ' + JSON.stringify(strayButtons));
+    const okNoStray = strayButtons.length === 0;
 
     console.log('\n=== DOGRULAMA ===');
     console.log('ray 72px:            ', okRail ? 'OK' : 'FAIL (' + meas.railW + ')');
@@ -149,8 +162,9 @@ async function run() {
     console.log('her uye tek kez:     ', okNoDup ? 'OK (' + meas.names.join(', ') + ')' : 'FAIL duplikasyon=' + JSON.stringify(meas.duplicates));
     console.log('scrollWidth=innerW:  ', okNoOverflow ? 'OK (' + meas.scrollWidth + '=' + meas.innerWidth + ')' : 'FAIL (' + meas.scrollWidth + '!=' + meas.innerWidth + ')');
     console.log('nested button uyarisi: ', okNoNested ? 'YOK (OK)' : 'VAR (FAIL)');
+    console.log('sol alt kacak buton:   ', okNoStray ? 'YOK (OK)' : 'VAR (' + strayButtons.length + ') FAIL');
 
-    const allOk = okRail && okMembers && okMemberCount && okNoDup && okNoOverflow && okNoNested;
+    const allOk = okRail && okMembers && okMemberCount && okNoDup && okNoOverflow && okNoNested && okNoStray;
     console.log(allOk ? '\nTUM DOGRULAMALAR GECTI' : '\nBAZI DOGRULAMALAR KALDI');
     process.exit(allOk ? 0 : 1);
   } catch (err) {
