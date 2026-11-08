@@ -17,14 +17,18 @@ export type { RoleBadgeProps, RoleBadgeSize, RoleBadgeTone } from './RoleBadge'
 export {
   MemberContextMenu,
   MemberMenuDropdown,
-  useMemberMenu,
 } from './MemberContextMenu'
 export type {
   MemberContextMenuProps,
   MemberMenuDropdownProps,
+} from './MemberContextMenu'
+
+export { useMemberMenu } from './memberMenu'
+export type {
   MemberMenuEntry,
   MemberMenuRoleEntry,
-} from './MemberContextMenu'
+  UseMemberMenuOptions,
+} from './memberMenu'
 
 /* Paylaşılan yardımcılar */
 export {
@@ -37,4 +41,4 @@ export {
   presenceColor,
   presenceLabel,
 } from './memberHelpers'
-export type { MemberGroups, MentionDeps } from './memberHelpers'
+export type { MemberGroups, MentionDeps, OpenMessageDeps } from './memberHelpers'

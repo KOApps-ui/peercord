@@ -163,8 +163,14 @@ export function flashMessage(messageId: ID, ms = 1200): boolean {
   return true
 }
 
+/** Kanala git + mesajı vurgula için gereken eylemler */
+export interface OpenMessageDeps {
+  selectChannel: AppStoreActions['selectChannel']
+  pushToast: AppStoreActions['pushToast']
+}
+
 /** Kanala git ve mesajı vurgula (arama sonucu / mention tıklaması) */
-export function openMessage(messageId: ID, channelId: ID, deps: MentionDeps): void {
+export function openMessage(messageId: ID, channelId: ID, deps: OpenMessageDeps): void {
   deps.selectChannel(channelId)
   requestAnimationFrame(() => {
     if (!flashMessage(messageId)) {

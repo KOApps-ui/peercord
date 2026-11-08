@@ -47,8 +47,8 @@ export function SearchPanel({ open, onClose, className }: SearchPanelProps) {
   const [query, setQuery] = useState('')
   const [channelFilter, setChannelFilter] = useState<ID | 'all'>('all')
   const [dateFilter, setDateFilter] = useState<DateFilter>('all')
-  const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<Message[]>([])
+  const [appliedKey, setAppliedKey] = useState('')
   const [flashId, setFlashId] = useState<ID | null>(null)
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -68,16 +68,14 @@ export function SearchPanel({ open, onClose, className }: SearchPanelProps) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open, onClose])
 
-  /* Arama (kısa gecikmeli — iskelet gösterimi için) */
+  /* Arama (kısa gecikmeli — iskelet göstergesi için) */
+  const currentKey = `${query}|${channelFilter}|${dateFilter}`
+  const loading = query.trim() !== '' && currentKey !== appliedKey
+
   useEffect(() => {
     const trimmed = query.trim()
-    if (!trimmed) {
-      setResults([])
-      setLoading(false)
-      return
-    }
+    if (!trimmed) return
 
-    setLoading(true)
     const timer = window.setTimeout(() => {
       const found = searchMessages(
         trimmed,
@@ -86,11 +84,11 @@ export function SearchPanel({ open, onClose, className }: SearchPanelProps) {
         .filter((msg) => !msg.deletedAt && matchesDateFilter(msg.createdAt, dateFilter))
         .slice(0, 80)
       setResults(found)
-      setLoading(false)
+      setAppliedKey(currentKey)
     }, 180)
 
     return () => window.clearTimeout(timer)
-  }, [query, channelFilter, dateFilter, searchMessages, messages])
+  }, [query, channelFilter, dateFilter, searchMessages, messages, currentKey])
 
   /* Kanala göre gruplama (kanal sırasını koru) */
   const groups = useMemo(() => {
