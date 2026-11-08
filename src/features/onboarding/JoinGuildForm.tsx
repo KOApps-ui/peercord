@@ -2,7 +2,7 @@
  * PeerCord — Onboarding: JoinGuildForm
  * ------------------------------------------------------------------ */
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import { useActions } from '@/lib/store'
 import { Button, Input } from '@/ui/primitives'
 
@@ -126,19 +126,16 @@ export function JoinGuildForm() {
         Odaya Katıl
       </Button>
 
-      {/* Hata mesajı */}
-      <AnimatePresence>
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="p-3 rounded-xl bg-[hsl(var(--pc-danger))/0.15] border border-[hsl(var(--pc-danger))/0.3] text-sm text-[hsl(var(--pc-danger))]"
-          >
-            {error}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Hata mesaji */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-3 rounded-xl bg-[hsl(var(--pc-danger))/0.15] border border-[hsl(var(--pc-danger))/0.3] text-sm text-[hsl(var(--pc-danger))]"
+        >
+          {error}
+        </motion.div>
+      )}
     </motion.div>
   )
 }

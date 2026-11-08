@@ -2,7 +2,7 @@
  * PeerCord — Modals: InviteModal
  * ------------------------------------------------------------------ */
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import { Modal } from '@/ui/primitives'
 import { Button } from '@/ui/primitives/Button'
 import { useActions, useAppStore } from '@/lib/store'
@@ -68,7 +68,7 @@ export function InviteModal() {
         </div>
 
         {/* Şifreli uyarısı */}
-        <AnimatePresence>
+        <div>
           {guild?.encrypted && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -89,7 +89,7 @@ export function InviteModal() {
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
+        </div>
 
         {/* Kapat butonu */}
         <div className="mt-4">

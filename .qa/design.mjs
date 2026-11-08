@@ -21,7 +21,6 @@ async function measure(page) {
       return { width: Math.round(r.width), height: Math.round(r.height), left: Math.round(r.left), right: Math.round(r.right) }
     }
 
-    // Check overflow: any element with right > innerWidth
     const overflowing = []
     const walk = (node) => {
       if (node.nodeType !== 1) return
@@ -52,21 +51,25 @@ async function measure(page) {
 }
 
 async function createGuild(page) {
-  // Bekle: BootSplash geçsin, WelcomeScreen görünsün
-  await page.waitForTimeout(2500)
+  // Bekle: BootSplash geçsin, WelcomeScreen tam görünsün
+  await page.waitForTimeout(4000)
 
-  // "Sunucu Oluştur" butonuna tıkla
-  await page.click('button:has-text("Sunucu Oluştur")', { timeout: 10000 })
-  await page.waitForTimeout(1000)
+  // Butonların görünmesini bekle
+  await page.waitForSelector('button:has-text("Sunucu Oluştur")', { state: 'visible', timeout: 15000 })
 
-  // Modal içinde sunucu adını doldur
+  // 1. WelcomeScreen'deki "Sunucu Oluştur" butonuna tıkla
+  await page.click('button:has-text("Sunucu Oluştur")', { force: true, timeout: 10000 })
+  await page.waitForTimeout(1500)
+
+  // 2. Modal içindeki input'u doldur
   const nameInput = page.locator('input[placeholder="Örn: Arkadaşlarım"]').first()
   await nameInput.waitFor({ state: 'visible', timeout: 10000 })
   await nameInput.fill('TestSunucu')
   await page.waitForTimeout(500)
 
-  // "Sunucu Oluştur" butonuna tıkla (modal içinde)
-  await page.click('button:has-text("Sunucu Oluştur")', { timeout: 10000 })
+  // 3. Modal içindeki "Sunucu Oluştur" butonuna tıkla
+  const dialog = page.locator('[role="dialog"]').first()
+  await dialog.locator('button:has-text("Sunucu Oluştur")').click({ force: true, timeout: 10000 })
   await page.waitForTimeout(2500)
 }
 
@@ -81,20 +84,16 @@ async function main() {
     try {
       await page.goto('http://localhost:5180', { waitUntil: 'networkidle' })
 
-      // Guild oluştur
       await createGuild(page)
 
-      // Escape ile modalları kapat
       await page.keyboard.press('Escape')
       await page.waitForTimeout(500)
 
-      // Screenshot
       await page.screenshot({
         path: `/tmp/pc-d-${vp.name.toLowerCase()}.png`,
         fullPage: false,
       })
 
-      // Ölçümler
       const m = await measure(page)
       RESULTS.push({ viewport: vp.name, ...m })
       console.log(`\n=== ${vp.name} ===`)
@@ -119,7 +118,6 @@ async function main() {
 
   await browser.close()
 
-  // Özet
   console.log('\n========================================')
   console.log('DESIGN QA ÖZET')
   console.log('========================================')

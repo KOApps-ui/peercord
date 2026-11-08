@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "version:gen": "node scripts/gen-version.mjs",
+    "build": "pnpm version:gen && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },

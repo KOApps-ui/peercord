@@ -8,8 +8,8 @@ import {
   useActiveChannel,
   useMembers,
 } from '@/lib/store'
-import { Input, ScrollArea } from '@/ui/primitives'
-import { Plus, Mail, ChevronRight, Users } from 'lucide-react'
+import { ScrollArea } from '@/ui/primitives'
+import { Plus, Mail, ChevronRight, Users, Hash, Volume2 } from 'lucide-react'
 import { ChannelItem } from './ChannelItem'
 import { UserPanel } from './UserPanel'
 
@@ -18,26 +18,7 @@ export function ChannelSidebar(): React.ReactNode {
   const members = useMembers()
   const activeChannel = useActiveChannel()
   const groups = useChannelGroups()
-  const { openModal, selectChannel, createChannel, toggleMembers } = useActions()
-
-  const [newChannelName, setNewChannelName] = React.useState('')
-  const [creating, setCreating] = React.useState(false)
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newChannelName.trim() || !guild) return
-    setCreating(true)
-    try {
-      await createChannel({
-        name: newChannelName.trim(),
-        type: 'text',
-        categoryId: null,
-      })
-      setNewChannelName('')
-    } finally {
-      setCreating(false)
-    }
-  }
+  const { openModal, selectChannel, toggleMembers } = useActions()
 
   if (!guild) return null
 
@@ -98,9 +79,20 @@ export function ChannelSidebar(): React.ReactNode {
               layout
               className="flex flex-col gap-1 mb-2 px-1"
             >
-              <p className="px-2 py-1 text-[10px] font-bold text-[hsl(var(--pc-text-subtle))] uppercase tracking-wider">
-                {group.category.name}
-              </p>
+              <div className="flex items-center justify-between px-2 py-1">
+                <p className="text-[10px] font-bold text-[hsl(var(--pc-text-subtle))] uppercase tracking-wider">
+                  {group.category.name}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => openModal('create-channel', { categoryId: group.category.id, defaultType: 'text' })}
+                  className="p-1 rounded-[var(--radius-sm)] text-[hsl(var(--pc-text-subtle))] hover:text-[hsl(var(--pc-text))] hover:bg-[hsl(var(--pc-surface-hover))] transition-colors"
+                  aria-label={`${group.category.name} kategorisine kanal ekle`}
+                  title="Kanal ekle"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
               {group.channels.map((ch) => (
                 <ChannelItem
                   key={ch.id}
@@ -119,6 +111,18 @@ export function ChannelSidebar(): React.ReactNode {
               layout
               className="flex flex-col gap-1 mb-2 px-1"
             >
+              <div className="flex items-center justify-between px-2 py-1">
+                <p className="text-[10px] font-bold text-[hsl(var(--pc-text-subtle))] uppercase tracking-wider">Diğer</p>
+                <button
+                  type="button"
+                  onClick={() => openModal('create-channel', { categoryId: null, defaultType: 'text' })}
+                  className="p-1 rounded-[var(--radius-sm)] text-[hsl(var(--pc-text-subtle))] hover:text-[hsl(var(--pc-text))] hover:bg-[hsl(var(--pc-surface-hover))] transition-colors"
+                  aria-label="Kategorisiz kanala ekle"
+                  title="Kanal ekle"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+              </div>
               {groups.uncategorized.map((ch) => {
                 // Her kanal yalnızca bir kez görünsün: grouped kategorilerde
                 // zaten yer alan kanalı tekrar uncategorized'da gösterme.
@@ -140,45 +144,16 @@ export function ChannelSidebar(): React.ReactNode {
         </div>
       </ScrollArea>
 
-      {/* Kanal oluşturma alanı + Üyeler butonu — kanal listesinin hemen altında, UserPanel'e yapışık */}
-      <div className="flex flex-col gap-1 px-1 pt-1">
-        <motion.form
-          onSubmit={handleCreate}
-          whileTap={{ scale: 0.98 }}
-          className="mt-2 px-1"
-        >
-          <div className="relative">
-            <Input
-              value={newChannelName}
-              onChange={(e) => setNewChannelName(e.target.value)}
-              placeholder="Yeni kanal adı…"
-              className="text-xs pl-8 pr-24"
-            />
-            <button
-              type="submit"
-              disabled={creating || !newChannelName.trim()}
-              aria-label="Kanal oluştur"
-              className={cn(
-                'absolute right-1 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full',
-                'text-[hsl(var(--pc-accent))] hover:bg-[hsl(var(--pc-accent-soft))]/50 transition-colors duration-150',
-                'disabled:opacity-50 disabled:pointer-events-none',
-              )}
-            >
-              <Plus className="h-3 w-3" />
-            </button>
-          </div>
-        </motion.form>
-
-        <motion.button
-          whileTap={{ scale: 0.96 }}
-          onClick={() => toggleMembers()}
-          aria-label="Üye listesini aç/kapa"
-          title="Üye listesi"
-          className="flex w-full items-center justify-center gap-2 px-2 py-1.5 rounded-[var(--radius-md)] text-xs font-medium text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-surface-hover))] hover:text-[hsl(var(--pc-text))] transition-colors duration-150"
-        >
-          <Users className="h-3.5 w-3.5" /> Üyeler
-        </motion.button>
-      </div>
+      {/* Üyeler butonu — kanal listesinin hemen altında, UserPanel'e yapışık */}
+      <motion.button
+        whileTap={{ scale: 0.96 }}
+        onClick={() => toggleMembers()}
+        aria-label="Üye listesini aç/kapa"
+        title="Üye listesi"
+        className="flex w-full items-center justify-center gap-2 px-2 py-1.5 rounded-[var(--radius-md)] text-xs font-medium text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-surface-hover))] hover:text-[hsl(var(--pc-text))] transition-colors duration-150 mx-1 mb-1"
+      >
+        <Users className="h-3.5 w-3.5" /> Üyeler
+      </motion.button>
 
       {/* Alt banda: UserPanel (sidebar içinde, rail'de değil) — 64px */}
       <motion.div

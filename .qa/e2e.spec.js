@@ -76,7 +76,7 @@ test.describe('[A] Sunucu Oluşturma Testi', () => {
   test('3. URL hash formatını doğrula', async ({ page }) => {
     const url = page.url();
     // #/oda/<roomId>?s=<secret> veya #/oda/<roomId>
-    expect(url).toMatch(/^http:\/\/localhost:5180\/#/oda\/[^?]+(\?s=[^&]+)?$/);
+    expect(url).toMatch(/^http:\/\/localhost:5180\/#\/oda\/[^?]+(\?s=[^&]+)?$/);
   });
 });
 

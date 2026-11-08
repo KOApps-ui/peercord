@@ -71,6 +71,7 @@ const DEFAULT_SETTINGS: Settings = {
   enterToSend: true,
   showMembers: true,
   recentEmojis: [],
+  autoUpdate: true,
   customRelays: [],
   preferredStrategy: 'nostr',
 }

@@ -11,7 +11,8 @@ p.on('console', m => console.log(m.type().toUpperCase()+':', m.text().slice(0, 2
 p.on('pageerror', e => console.log('PE:', e.message))
 
 await p.goto('http://localhost:5180/', { waitUntil: 'domcontentloaded' })
-await p.waitForTimeout(1000)
+await p.waitForTimeout(3500)
+console.log('title:', await p.title())
 
 // --- Oda oluştur ---
 await p.getByRole('button', { name: 'Sunucu Oluştur' }).first().click()
@@ -24,8 +25,9 @@ await p.waitForTimeout(3000)
 
 // --- Kullanıcı ayarlarını aç ---
 await p.getByLabel('Kullanıcı ayarları').first().click()
-await p.waitForTimeout(300)
-await p.getByRole('menuitem', { name: 'Ayarları aç' }).first().click()
+await p.waitForTimeout(1500)
+console.log('menu count:', await p.locator('[role="menu"]').count())
+await p.getByText('Ayarları aç').first().click()
 await p.waitForTimeout(800)
 
 // --- Banner yükle (PNG) ---

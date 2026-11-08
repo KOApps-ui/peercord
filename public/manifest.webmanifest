@@ -1,0 +1,16 @@
+{
+  "name": "PeerCord",
+  "short_name": "PeerCord",
+  "description": "Sunucusuz, uçtan uca şifreli, P2P mesajlaşma uygulaması",
+  "display": "standalone",
+  "start_url": "/",
+  "theme_color": "#0b0912",
+  "background_color": "#0b0912",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}

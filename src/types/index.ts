@@ -200,9 +200,13 @@ export interface Settings {
   showMembers: boolean
   /** Emoji picker'da son kullanılanlar */
   recentEmojis: string[]
+  /** Otomatik güncelleme: yeni sürüm çıkınca kendiliğinden yenile */
+  autoUpdate: boolean
   /** Sinyalleşme için özel relay adresleri */
   customRelays: string[]
   preferredStrategy: SignalingStrategy
+  /** Güncelleme kontrolü için zaman aşımı ayarı */
+  autoUpdateTimeoutMs?: number
 }
 
 /* --------------------------- UI yardımcı -------------------------- */

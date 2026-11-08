@@ -21,6 +21,7 @@ import { ScreenShareView } from '@/features/voice'
 import { MessageList } from '@/features/chat'
 import { MessageComposer } from '@/features/chat'
 import { useActions, useAppStore, useActiveChannel, useActiveVoiceChannel, useRemoteScreenStreams, useLocalVoiceState } from '@/lib/store'
+import { UpdateBanner } from '@/features/updates'
 
 /* ------------------------------- BootSplash ------------------------------- */
 function BootSplash(): ReactNode {
@@ -293,6 +294,7 @@ export default function App(): ReactNode {
             <ToastViewport />
             <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
             <CommandPalette />
+            <UpdateBanner />
           </div>
         </TooltipProvider>
       </ThemeProvider>
