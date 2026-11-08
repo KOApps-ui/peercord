@@ -148,7 +148,7 @@ function GuildView(): ReactNode {
           </>
         )}
 
-        <div className="flex-1 min-h-0 overflow-hidden relative">
+        <div className="flex-1 min-h-0 overflow-hidden relative flex flex-col">
           {activeChannel?.type === 'voice' ? (
             <VoiceStage channel={activeChannel} onClose={toggleMembers} />
           ) : activeChannel?.type === 'text' ? (

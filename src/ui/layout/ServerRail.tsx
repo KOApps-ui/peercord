@@ -133,19 +133,6 @@ export function ServerRail({ className }: ServerRailProps): ReactNode {
           <Settings className="h-5 w-5" />
         </motion.button>
 
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => openModal('user-settings')}
-          aria-label="Kullanıcı ayarları"
-          title="Ayarlar"
-          className={cn(
-            'flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)]',
-            'bg-[hsl(var(--pc-surface-hover))] hover:bg-[hsl(var(--pc-surface-active))]',
-            'transition-colors duration-150',
-          )}
-        >
-          <Settings className="h-5 w-5" />
-        </motion.button>
       </div>
     </motion.div>
   </>

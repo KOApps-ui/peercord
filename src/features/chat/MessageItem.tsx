@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { useAppStore } from '@/lib/store'
-import { Button } from '@/ui/primitives'
 import { Menu, MenuTrigger, MenuContent, MenuItem } from '@/ui/primitives'
 import { AttachmentCard } from './AttachmentCard'
 import { Reactions } from './Reactions'
@@ -158,18 +157,15 @@ function parseMarkdown(text: string): React.ReactNode {
       }
     }
 
-    // Regular text - consume until next markdown char or whitespace
+    // Düz metin — bir sonraki markdown karakterine kadar ilerle.
+    // NOT: Boşluklar metnin parçasıdır; eskiden boşlukta `pos` ilerlemediği
+    // için markdown ayrıştırıcısı sonsuz döngüye girip sekmeyi kilitliyordu.
     const nextMarkdown = remaining.slice(pos).search(/[*`>\n@:#]/)
-    const nextSpace = remaining.indexOf(' ', pos)
-    const nextNewline = remaining.indexOf('\n', pos)
-
-    let nextPos = remaining.length
-    if (nextMarkdown !== -1) nextPos = Math.min(nextPos, pos + nextMarkdown)
-    if (nextSpace !== -1) nextPos = Math.min(nextPos, nextSpace)
-    if (nextNewline !== -1) nextPos = Math.min(nextPos, nextNewline)
+    let nextPos = nextMarkdown === -1 ? remaining.length : pos + nextMarkdown
+    if (nextPos <= pos) nextPos = pos + 1
 
     const text = remaining.slice(pos, nextPos)
-    if (text.trim()) {
+    if (text) {
       parts.push({ type: 'text', content: text })
     }
     pos = nextPos
@@ -374,24 +370,17 @@ export function MessageItem({
         {isOwnMessage && (
           <div className="absolute right-0 top-0 pt-1 hidden">
             <Menu>
-              <MenuTrigger>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label="Daha fazla"
-                  className="pc-focus-rounded p-1"
+              <MenuTrigger aria-label="Daha fazla" className="pc-focus-rounded p-1">
+                <svg
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
                 >
-                  <svg
-                    className="h-4 w-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </Button>
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </MenuTrigger>
               <MenuContent>
                 <MenuItem onSelect={() => onEdit?.(message.id, message.content)}>

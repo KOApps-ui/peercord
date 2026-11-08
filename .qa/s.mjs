@@ -1,0 +1,12 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch(); const p = await b.newPage({ viewport:{width:1440,height:900} })
+p.on('pageerror', e=>console.log('PE', e.message))
+await p.goto('http://localhost:5180/', {waitUntil:'domcontentloaded'}); await p.waitForTimeout(1200)
+await p.getByRole('button', { name: 'Sunucu Oluştur' }).first().click(); await p.waitForTimeout(500)
+const d = p.locator('[role="dialog"]')
+await d.getByLabel('Sunucu adı').fill('Kompoz Test'); await p.waitForTimeout(400)
+await d.getByRole('button', { name: 'Sunucu Oluştur' }).click(); await p.waitForTimeout(3000)
+console.log('STATE', JSON.stringify(await p.evaluate(()=>{const s=window.__pc.useAppStore.getState();return {guild:s.guild?.name, active:s.activeChannelId, modal:s.modal, err:s.error, toasts:s.toasts.map(t=>t.title)}})))
+console.log('INPUTS', await p.locator('input,textarea,[contenteditable]').evaluateAll(els=>els.map(e=>({tag:e.tagName, ph:e.getAttribute('placeholder')}))))
+await p.screenshot({path:'/tmp/pc-comp.png'})
+await b.close()

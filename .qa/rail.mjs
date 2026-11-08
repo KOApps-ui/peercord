@@ -1,0 +1,10 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch(); const p = await b.newPage({ viewport:{width:1440,height:900} })
+await p.goto('http://localhost:5180/', {waitUntil:'domcontentloaded'}); await p.waitForTimeout(1000)
+await p.getByRole('button', { name: 'Sunucu Oluştur' }).first().click(); await p.waitForTimeout(400)
+const d = p.locator('[role="dialog"]')
+await d.getByLabel('Sunucu adı').fill('Ray Testi'); await p.waitForTimeout(350)
+await d.getByRole('button', { name: 'Sunucu Oluştur' }).click(); await p.waitForTimeout(2200)
+const items = await p.evaluate(() => [...document.querySelectorAll('button, a, [role="button"]')].map(el => { const r = el.getBoundingClientRect(); return { label: el.getAttribute('aria-label') || el.textContent?.trim().slice(0,12), x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height), cls: el.className.toString().slice(0,60) } }).filter(i => i.x < 72))
+console.log(JSON.stringify(items, null, 1))
+await b.close()

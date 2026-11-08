@@ -1,0 +1,12 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch(); const p = await b.newPage({ viewport:{width:1440,height:900} })
+p.on('pageerror', e => console.log('PAGEERROR:', e.message, '\n', (e.stack||'').split('\n').slice(0,6).join('\n')))
+p.on('console', m => { if (m.type()==='error') console.log('CONSOLE:', m.text().slice(0,400)) })
+await p.goto('http://localhost:5180/', {waitUntil:'domcontentloaded'}); await p.waitForTimeout(1200)
+await p.getByRole('button', { name: 'Sunucu Oluştur' }).first().click(); await p.waitForTimeout(400)
+const d = p.locator('[role="dialog"]')
+await d.getByLabel('Sunucu adı').fill('Hata Testi'); await p.waitForTimeout(400)
+await d.getByRole('button', { name: 'Sunucu Oluştur' }).click(); await p.waitForTimeout(2500)
+await p.locator('details').click().catch(()=>{})
+console.log('DETAILS:', (await p.locator('details').innerText().catch(()=>'yok')).slice(0,800))
+await b.close()

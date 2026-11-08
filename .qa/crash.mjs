@@ -1,0 +1,22 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch()
+const pa = await (await b.newContext({viewport:{width:1440,height:900}})).newPage()
+pa.on('console', m=>{ if(m.type()==='error') console.log('A-C:', m.text().slice(0,160)) })
+pa.on('crash', ()=>console.log('A CRASH'))
+pa.on('pageerror', e=>console.log('A-PE:', e.message.slice(0,200)))
+await pa.goto('http://localhost:5180/', {waitUntil:'domcontentloaded'}); await pa.waitForTimeout(1000)
+await pa.getByRole('button', { name: 'Sunucu Oluştur' }).first().click(); await pa.waitForTimeout(400)
+const d = pa.locator('[role="dialog"]')
+await d.getByLabel('Sunucu adı').fill('Crash Testi'); await pa.waitForTimeout(400)
+await d.getByRole('button', { name: 'Sunucu Oluştur' }).click(); await pa.waitForTimeout(2200)
+const url = await pa.evaluate(()=>location.href)
+const pb = await (await b.newContext({viewport:{width:1440,height:900}})).newPage()
+pb.on('console', m=>{ if(m.type()==='error') console.log('B-C:', m.text().slice(0,160)) })
+pb.on('crash', ()=>console.log('B CRASH'))
+await pb.goto(url, {waitUntil:'domcontentloaded'}); await pb.waitForTimeout(5000)
+const ta = pa.locator('textarea').first()
+await ta.click(); await pa.keyboard.type('test 1'); await pa.waitForTimeout(200)
+try { await pa.keyboard.press('Enter') } catch(e) { console.log('press err', e.message.slice(0,80)) }
+await pa.waitForTimeout(1200)
+try { console.log('A state:', JSON.stringify(await pa.evaluate(()=>{const s=window.__pc.useAppStore.getState();return {m:Object.values(s.messages).reduce((a,b)=>a+b.length,0), busy:false}}))) } catch(e) { console.log('A eval err:', e.message.slice(0,80)) }
+await b.close()

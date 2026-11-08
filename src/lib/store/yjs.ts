@@ -139,8 +139,13 @@ export function createYjsManager(roomId: string): YjsManager {
     }, 120)
   }
 
+  // Uzaktan gelen güncellemelerin tekrar yayınlanmasını engellemek için
+  // origin etiketi kullanılır (aksi halde iki eş sonsuz yayın döngüsüne girer).
+  const REMOTE_ORIGIN = Symbol('peercord-remote')
+
   // Yjs güncellemelerini dinle
-  const updateHandler = (update: Uint8Array) => {
+  const updateHandler = (update: Uint8Array, origin: unknown) => {
+    if (origin === REMOTE_ORIGIN) return
     debouncedBroadcast!(update)
   }
   doc.on('update', updateHandler)
@@ -157,7 +162,7 @@ export function createYjsManager(roomId: string): YjsManager {
 
   // Uzak güncelleme uygula
   function applyRemoteUpdate(update: Uint8Array): void {
-    Y.applyUpdate(doc, update)
+    Y.applyUpdate(doc, update, REMOTE_ORIGIN)
   }
 
   // Tam state'i update olarak al (yeni katılanlar için)

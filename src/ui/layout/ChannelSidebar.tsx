@@ -119,15 +119,21 @@ export function ChannelSidebar(): React.ReactNode {
               layout
               className="flex flex-col gap-1 mb-2 px-1"
             >
-              {groups.uncategorized.map((ch) => (
-                <ChannelItem
-                  key={ch.id}
-                  channel={ch}
-                  isActive={activeChannel?.id === ch.id}
-                  onSelect={selectChannel}
-                  onSettings={() => openModal('channel-settings')}
-                />
-              ))}
+              {groups.uncategorized.map((ch) => {
+                // Her kanal yalnızca bir kez görünsün: grouped kategorilerde
+                // zaten yer alan kanalı tekrar uncategorized'da gösterme.
+                const inGroup = groups.groups.some(g => g.channels.some(c => c.id === ch.id))
+                if (inGroup) return null
+                return (
+                  <ChannelItem
+                    key={ch.id}
+                    channel={ch}
+                    isActive={activeChannel?.id === ch.id}
+                    onSelect={selectChannel}
+                    onSettings={() => openModal('channel-settings')}
+                  />
+                )
+              })}
             </motion.div>
           )}
 

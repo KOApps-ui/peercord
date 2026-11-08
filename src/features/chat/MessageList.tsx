@@ -1,94 +1,113 @@
-import * as React from 'react'
+import { Fragment, useMemo } from 'react'
 import { cn } from '@/lib/utils'
-import { useAppStore } from '@/lib/store'
+import { useActions, useMe, useMessages } from '@/lib/store'
 import { DateDivider } from './DateDivider'
 import { EmptyState } from './EmptyState'
 import { MessageItem } from './MessageItem'
+import type { Message } from '@/types'
 
 type MessageListProps = {
   channelId?: string
   className?: string
 }
 
+interface MessageGroup {
+  messages: Message[]
+  showDivider: boolean
+}
+
+const dayKey = (ts: number) => {
+  const d = new Date(ts)
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+}
+
 export function MessageList({ channelId, className }: MessageListProps) {
-  const { messages } = useAppStore.getState()
-  const myUserId = useAppStore.getState().me?.id ?? ''
+  // Reaktif seçici: mağaza güncellenince liste de yenilenir
+  const messages = useMessages(channelId ?? null)
+  const me = useMe()
+  const actions = useActions()
 
-  // Get messages for the active channel
-  const channelMessages = channelId ? messages[channelId] || [] : []
+  const groups = useMemo<MessageGroup[]>(() => {
+    if (messages.length === 0) return []
 
-  // Group consecutive messages from same author within 5 minutes
-  const groupedMessages = React.useMemo(() => {
-    if (channelMessages.length === 0) return []
+    const result: MessageGroup[] = []
+    let current: Message[] = []
+    let prev: Message | undefined
 
-    const groups: Array<{
-      messages: typeof channelMessages
-      showDivider: boolean
-    }> = []
+    for (const msg of messages) {
+      const newDay = prev ? dayKey(prev.createdAt) !== dayKey(msg.createdAt) : true
+      const gap = prev ? msg.createdAt - prev.createdAt : Infinity
+      const sameAuthor = prev ? msg.authorId === prev.authorId : false
 
-    let currentGroup: typeof channelMessages = [channelMessages[0]]
-    const fiveMin = 5 * 60 * 1000
+      const startsNewGroup = !prev || newDay || !sameAuthor || gap > 5 * 60 * 1000
 
-    for (let i = 1; i < channelMessages.length; i++) {
-      const prev = channelMessages[i - 1]
-      const curr = channelMessages[i]
-
-      const timeDiff = curr.createdAt - prev.createdAt
-      const sameAuthor = curr.authorId === prev.authorId
-
-      if (sameAuthor && timeDiff <= fiveMin) {
-        currentGroup.push(curr)
-      } else {
-        groups.push({
-          messages: currentGroup,
-          showDivider:
-            groups.length > 0 &&
-            new Date().getTime() - new Date(currentGroup[0].createdAt).getTime() >
-              fiveMin,
-        })
-        currentGroup = [curr]
+      if (startsNewGroup && current.length > 0) {
+        result.push({ messages: current, showDivider: false })
+        current = []
       }
+      current.push(msg)
+      prev = msg
     }
-    groups.push({ messages: currentGroup, showDivider: false })
+    if (current.length > 0) result.push({ messages: current, showDivider: false })
 
-    return groups
-  }, [channelMessages])
+    // Her yeni günün ilk grubunda tarih ayırıcısı
+    return result.map((group, index) => ({
+      ...group,
+      showDivider:
+        index === 0 ||
+        dayKey(group.messages[0]!.createdAt) !==
+          dayKey(result[index - 1]!.messages[result[index - 1]!.messages.length - 1]!.createdAt),
+    }))
+  }, [messages])
 
   return (
-    <div className={cn('pc-scroll-fade flex-1 w-full space-y-1', className)}>
-      {channelMessages.length === 0 ? (
+    <div
+      className={cn(
+        'pc-scroll-fade flex-1 min-h-0 w-full overflow-y-auto px-4 py-3',
+        className,
+      )}
+      role="log"
+      aria-live="polite"
+      aria-label="Mesajlar"
+    >
+      {messages.length === 0 ? (
         <EmptyState
-          title='Henüz mesaj yok'
-          description='Mesajlaşmaya başlayın veya bir kanala geçin.'
+          title="Henüz mesaj yok"
+          description="Mesajlaşmaya başlayın veya bir kanala geçin."
         />
       ) : (
-        <div className="space-y-1">
-          {groupedMessages.map((group, gi) => (
-            <React.Fragment key={gi}>
+        <div className="mx-auto w-full max-w-[var(--pc-composer-max)] space-y-1">
+          {groups.map((group, gi) => (
+            <Fragment key={group.messages[0]!.id ?? gi}>
               {group.showDivider && (
-                <DateDivider
-                  timestamp={new Date(group.messages[0].createdAt).getTime()}
-                />
+                <DateDivider timestamp={group.messages[0]!.createdAt} />
               )}
-              {group.messages.map((msg, mi) => (
+              {group.messages.map((msg) => (
                 <MessageItem
-                  key={mi}
+                  key={msg.id}
                   message={msg}
-                  myUserId={myUserId}
-                  onReply={() => {}}
-                  onEdit={async () => {}}
-                  onDelete={async () => {}}
-                  onReact={async () => {}}
+                  myUserId={me?.id ?? ''}
+                  onReply={() => {
+                    /* yanıt durumu composer tarafından yönetiliyor */
+                  }}
+                  onEdit={async (id, content) => {
+                    await actions.editMessage(id, content)
+                  }}
+                  onDelete={async (id) => {
+                    await actions.deleteMessage(id)
+                  }}
+                  onReact={async (id, emoji) => {
+                    await actions.toggleReaction(id, emoji)
+                  }}
+                  onSave={async (id, content) => {
+                    await actions.editMessage(id, content)
+                  }}
+                  onCancel={() => {
+                    /* düzenleme iptali MessageItem içinde */
+                  }}
                 />
               ))}
-              {group.showDivider && group.messages.length > 0 && (
-                <DateDivider
-                  timestamp={new Date(
-                    group.messages[group.messages.length - 1].createdAt
-                  ).getTime()}
-                />
-              )}
-            </React.Fragment>
+            </Fragment>
           ))}
         </div>
       )}

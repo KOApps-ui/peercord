@@ -15,12 +15,16 @@ export function MemberSidebar(): ReactNode {
 
   const hoistedRoles = guild.roles.filter((r: Role) => r.hoist).sort((a: Role, b: Role) => b.position - a.position)
   const roleMemberMap = new Map<ID, { role: Role; members: typeof members }>()
+  const alreadyListed = new Set<ID>()
   hoistedRoles.forEach((role: Role) => {
     const roleMembers = members.filter((m) => m.roleIds.includes(role.id))
     if (roleMembers.length > 0) {
       roleMemberMap.set(role.id, { role, members: roleMembers })
+      roleMembers.forEach((m) => alreadyListed.add(m.userId))
     }
   })
+  // @everyone grubunda yalnızca yukarıda listelenmeyen üyeler kalır
+  const restMembers = members.filter((m) => !alreadyListed.has(m.userId))
 
   return (
     <motion.div
@@ -93,11 +97,11 @@ export function MemberSidebar(): ReactNode {
                 @everyone
               </p>
               <span className="ml-auto text-[10px] text-[hsl(var(--pc-text-subtle))]">
-                {members.length}
+                {restMembers.length}
               </span>
             </div>
             <AnimatePresence>
-              {members.map((m, i) => (
+              {restMembers.map((m, i) => (
                 <MemberRow
                   key={m.userId}
                   member={m}

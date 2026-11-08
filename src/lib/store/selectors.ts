@@ -85,17 +85,20 @@ export function useActiveChannel(): Channel | null {
   })
 }
 
+/** Boş dizi sabiti — selector her render'da yeni referans üretmemeli */
+const EMPTY_MESSAGES: Message[] = []
+const EMPTY_TYPING: TypingState[] = []
+
 /** Kanal mesajları */
 export function useMessages(channelId: ID | null): Message[] {
-  return useAppStore(state => {
-    if (!channelId) return []
-    return state.messages[channelId] || []
-  })
+  return useAppStore(state => (channelId ? state.messages[channelId] ?? EMPTY_MESSAGES : EMPTY_MESSAGES))
 }
 
-/** Tüm üyeler (PeerInfo listesi) */
+/** Tüm üyeler (PeerInfo listesi — members record'ından, kendi kullanıcı dahil) */
 export function useMembers(): PeerInfo[] {
-  return useAppStore(state => state.peers)
+  // useShallow: Object.values her çağrıda yeni dizi üretir; sarmalanmazsa
+  // React "getSnapshot should be cached" sonsuz döngüsüne girer.
+  return useAppStore(useShallow(state => Object.values(state.members)))
 }
 
 /** Sesli kanaldaki üyeler */
@@ -105,7 +108,7 @@ export function useVoiceMembers(): VoiceMemberState[] {
 
 /** Yazma durumu */
 export function useTyping(channelId: ID): TypingState[] {
-  return useAppStore(state => state.typing[channelId] || [])
+  return useAppStore(state => state.typing[channelId] ?? EMPTY_TYPING)
 }
 
 /** Ayarlar */

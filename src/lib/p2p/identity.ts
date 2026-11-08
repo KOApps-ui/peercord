@@ -33,7 +33,7 @@ export function generateAccentHue(userId: ID): number {
 /**
  * Yeni kimlik oluşturur ve localStorage'a kaydeder
  */
-export async function createIdentity(name: string = 'Misafir'): Promise<{
+export async function createIdentity(name: string = ''): Promise<{
   profile: UserProfile;
   identity: Identity;
 }> {
@@ -43,9 +43,10 @@ export async function createIdentity(name: string = 'Misafir'): Promise<{
   const avatarSeed = userId;
   const accentHue = generateAccentHue(userId);
   
+  const finalName = name.trim() || `Gezgin-${crypto.randomUUID().slice(0, 8).toUpperCase()}`
   const profile: UserProfile = {
     id: userId,
-    name,
+    name: finalName,
     avatarSeed,
     accentHue,
     status: 'online',
@@ -56,7 +57,7 @@ export async function createIdentity(name: string = 'Misafir'): Promise<{
   const identity: Identity = {
     secretKey,
     publicKey,
-    name,
+    name: finalName,
   };
   
   // Otomatik kaydet

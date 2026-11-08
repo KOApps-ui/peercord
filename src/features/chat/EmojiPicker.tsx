@@ -65,13 +65,8 @@ export function EmojiPicker({
 
   return (
     <Popover>
-      <PopoverTrigger>
-        <button
-          aria-label="Emoji picker"
-          className="pc-focus-ring inline-flex items-center gap-2 rounded-md bg-surface px-3 py-1.5 text-sm text-foreground hover:bg-surface-opacity-20 transition-colors"
-        >
-          😀
-        </button>
+      <PopoverTrigger aria-label="Emoji seçici" className="h-9 w-9 rounded-[var(--radius-md)] text-lg">
+        😀
       </PopoverTrigger>
 
       <PopoverContent className="p-1 w-96">

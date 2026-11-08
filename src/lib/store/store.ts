@@ -39,6 +39,7 @@ import {
   deleteMessageInYjs,
   toggleReactionInYjs,
   getProfileFromYjs,
+  getMessagesFromYjs,
   updateReadInYjs,
   setGuildInYjs,
 } from './yjs'
@@ -217,7 +218,7 @@ export const useAppStore = create<StoreWithInternals>()(
             }
           } else {
             // Yeni kimlik oluştur
-            const { profile: newProfile } = await createIdentity('Misafir')
+            const { profile: newProfile } = await createIdentity()
             profile = newProfile
           }
         }
@@ -535,6 +536,8 @@ export const useAppStore = create<StoreWithInternals>()(
             if (roomId) {
               // Odaya bağlan
               await actions.joinGuild({ invite: roomId, secret })
+              // Eğer joinGuild başarısızsa (ör. eski oda), bootstrap tamam
+              if (!get().ready) set({ ready: true })
             } else {
               set({ ready: true })
             }
@@ -585,18 +588,32 @@ export const useAppStore = create<StoreWithInternals>()(
 
           // Kanalları ayarla
           const firstTextChannel = guild.channels.find(c => c.type === 'text')
+
+          // Yjs'den mesajları yükle (IndexedDB'den - yeni oda için boş)
+          const messagesByChannel: Record<ID, Message[]> = {}
+          for (const ch of guild.channels) {
+            const channelMessages = getMessagesFromYjs(_yjs, ch.id)
+            if (channelMessages.length > 0) {
+              messagesByChannel[ch.id] = channelMessages
+            }
+          }
+
           set({
             guild: ensureEveryoneRole(guild),
             roomId,
             channels: guild.channels,
             categories: guild.categories,
             activeChannelId: firstTextChannel?.id || null,
+            messages: messagesByChannel,
             connection: { status: 'connected', peerCount: 0, roomId, strategy: 'nostr' },
             ready: true,
             me: { ...me, roleIds: [guild.roles[1]?.id || ''] }, // Owner rolü
             _yjs,  // Store'a ekle
             _textTransport,  // Store'a ekle
           })
+
+          // Üye listesine kendimizi ekle (sayaç ve liste için)
+          _updatePeerList(get().peers)
 
           // Kendi profilini Yjs'e kaydet
           await ensureProfileInYjs(_yjs, get().me!)
@@ -665,17 +682,31 @@ export const useAppStore = create<StoreWithInternals>()(
 
           // Kanalları ayarla
           const firstTextChannel = guild.channels.find(c => c.type === 'text')
+
+          // Yjs'den mesajları yükle (IndexedDB'den)
+          const messagesByChannel: Record<ID, Message[]> = {}
+          for (const ch of guild.channels) {
+            const channelMessages = getMessagesFromYjs(_yjs, ch.id)
+            if (channelMessages.length > 0) {
+              messagesByChannel[ch.id] = channelMessages
+            }
+          }
+
           set({
             guild: ensureEveryoneRole(guild),
             roomId,
             channels: guild.channels,
             categories: guild.categories,
             activeChannelId: firstTextChannel?.id || null,
+            messages: messagesByChannel,
             connection: { status: 'connected', peerCount: 0, roomId, strategy: 'nostr' },
             ready: true,
             _yjs,  // Store'a ekle
             _textTransport,  // Store'a ekle
           })
+
+          // Üye listesine kendimizi ekle (sayaç ve liste için)
+          _updatePeerList(get().peers)
 
           // Kendi profilini Yjs'e kaydet
           await ensureProfileInYjs(_yjs, get().me!)
