@@ -177,6 +177,15 @@ export function createYjsManager(roomId: string): YjsManager {
         }
       }
     })
+
+    // Yeni eş katıldığında ona güncel dokümanın tamamını gönder.
+    // (Yalnızca doc.on('update') yayını yeterli değil: yeni gelen eş
+    //  o ana kadarki geçmişi alamıyordu.)
+    transport.onPeersChanged((peers) => {
+      if (peers.length === 0) return
+      const update = Y.encodeStateAsUpdate(doc)
+      transport?.broadcast('yjs', toBase64(update)).catch(console.error)
+    })
   }
 
   // Temizlik

@@ -24,7 +24,7 @@ export function ChannelHeader({ channel }: ChannelHeaderProps): ReactNode {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18 }}
       className={cn(
-        'flex h-[var(--pc-header-h)] w-full shrink-0 items-center justify-between gap-2 px-3',
+        'flex h-[var(--pc-header-h)] w-full shrink-0 items-center justify-between gap-2 px-3 z-[30]',
         'pc-glass-strong border-b border-[hsl(var(--pc-border-soft))]',
       )}
     >

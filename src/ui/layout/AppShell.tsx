@@ -101,9 +101,9 @@ export function AppShell({
               exit={{ opacity: 0, x: 12 }}
               transition={{ duration: 0.18 }}
               className={cn(
-                'flex h-full w-[var(--pc-members-w)] flex-col shrink-0 z-20',
-                'bg-[hsl(var(--pc-surface))] border-l border-[hsl(var(--pc-border-soft))] shadow-panel',
-                'fixed inset-y-0 right-0 lg:!static lg:relative lg:z-auto lg:transform-none',
+                'flex h-full w-[var(--pc-members-w)] flex-col shrink-0',
+                'bg-[hsl(var(--pc-surface))] border-l border-[hsl(var(--pc-border-soft))] shadow-panel overflow-x-hidden',
+                'fixed inset-y-0 right-0 lg:!static lg:relative lg:z-0 lg:transform-none',
                 'transform transition-transform duration-300 ease-in-out',
                 membersOpen ? 'translate-x-0 lg:translate-x-0' : 'translate-x-full',
               )}
