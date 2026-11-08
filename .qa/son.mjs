@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const BASE_URL = 'http://localhost:5180';
+const BASE_URL = 'http://127.0.0.1:5180';
 const TEST_ROOM_NAME = 'Final QA Odasi';
 const TIMEOUT_MS = 20000;
 
@@ -59,7 +59,7 @@ async function run() {
     const inviteLink = urlA;
 
     try {
-      await waitFor(() => pageA.locator('text=/\u00DCyeler\\s*\\(1\\)/').count() > 0, 15000, 'A uye sayisi 1');
+      await pageA.waitForFunction(() => document.body.textContent.includes('Üyeler (1)'), { timeout: 15000 });
     } catch (e) {
       console.error('A BODY:', (await pageA.locator('body').innerText()).slice(0, 800).replace(/\n/g, ' | '));
       throw e;
@@ -69,9 +69,19 @@ async function run() {
     log('B: davet linkine katil');
     await pageB.goto(inviteLink, { waitUntil: 'networkidle' });
 
-    await waitFor(() => pageB.locator('text=/\u00DCyeler\\s*\\(2\\)/').count() > 0, TIMEOUT_MS, 'B uye sayisi 2');
+    try {
+      await pageB.waitForFunction(() => document.body.textContent.includes('Üyeler (2)'), { timeout: TIMEOUT_MS });
+    } catch (e) {
+      console.error('B BODY:', (await pageB.locator('body').innerText()).slice(0, 800).replace(/\n/g, ' | '));
+      throw e;
+    }
     await pageA.waitForTimeout(1000);
-    await waitFor(() => pageA.locator('text=/\u00DCyeler\\s*\\(2\\)/').count() > 0, TIMEOUT_MS, 'A uye sayisi 2');
+    try {
+      await pageA.waitForFunction(() => document.body.textContent.includes('Üyeler (2)'), { timeout: TIMEOUT_MS });
+    } catch (e) {
+      console.error('A BODY2:', (await pageA.locator('body').innerText()).slice(0, 800).replace(/\n/g, ' | '));
+      throw e;
+    }
     log('iki es baglandi, uye sayisi 2');
 
     await pageA.screenshot({ path: '/tmp/pc-son-1440.png', fullPage: true });
@@ -118,7 +128,7 @@ async function run() {
     }));
     log('OLCULER (390): ' + JSON.stringify(measMob, null, 2));
 
-    const nestedBtnWarns = consoleWarnings.filter(w => /button cannot contain|nested button/i.test(w));
+    const nestedBtnWarns = consoleWarnings.filter(w => /cannot contain a nested|nested button/i.test(w));
     log('KONSOl UYARI SAYISI: ' + consoleWarnings.length);
     log('nested-button uyarisi: ' + (nestedBtnWarns.length ? 'VAR (' + nestedBtnWarns.length + ')' : 'YOK'));
     if (consoleWarnings.length) log('tum konsol mesajlari:\n' + consoleWarnings.join('\n'));

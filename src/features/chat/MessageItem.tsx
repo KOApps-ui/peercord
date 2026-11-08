@@ -331,7 +331,7 @@ export function MessageItem({
             <div className="mt-1.5 flex flex-wrap gap-1">
               {message.attachments.map((att, _i) => (
                 <AttachmentCard
-                  key={att.id}
+                  key={`${att.id}-${_i}`}
                   attachment={att}
                   canCancel={isOwnMessage}
                 />

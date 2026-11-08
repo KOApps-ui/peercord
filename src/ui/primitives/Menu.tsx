@@ -19,9 +19,13 @@ export function Menu({ children }: MenuProps) {
 
 export interface MenuTriggerProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
+  asChild?: boolean
 }
 
-export function MenuTrigger({ children, ...props }: MenuTriggerProps) {
+export function MenuTrigger({ children, asChild = false, ...props }: MenuTriggerProps) {
+  if (asChild) {
+    return <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+  }
   return (
     <DropdownMenuTrigger asChild>
       <button type="button" className="inline-flex items-center justify-center rounded-[var(--radius-md)] p-2 text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-surface-hover))] hover:text-[hsl(var(--pc-text))] transition-colors duration-150" {...props}>
