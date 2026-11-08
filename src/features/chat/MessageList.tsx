@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
 import { DateDivider } from './DateDivider'
 import { EmptyState } from './EmptyState'
@@ -6,9 +7,10 @@ import { MessageItem } from './MessageItem'
 
 type MessageListProps = {
   channelId?: string
+  className?: string
 }
 
-export function MessageList({ channelId }: MessageListProps) {
+export function MessageList({ channelId, className }: MessageListProps) {
   const { messages } = useAppStore.getState()
   const myUserId = useAppStore.getState().me?.id ?? ''
 
@@ -53,7 +55,7 @@ export function MessageList({ channelId }: MessageListProps) {
   }, [channelMessages])
 
   return (
-    <div className="pc-scroll-fade flex-1 w-full space-y-1">
+    <div className={cn('pc-scroll-fade flex-1 w-full space-y-1', className)}>
       {channelMessages.length === 0 ? (
         <EmptyState
           title='Henüz mesaj yok'

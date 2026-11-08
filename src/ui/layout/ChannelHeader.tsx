@@ -11,9 +11,7 @@ export interface ChannelHeaderProps {
 }
 
 export function ChannelHeader({ channel }: ChannelHeaderProps): ReactNode {
-  const { searchQuery } = useAppStore((s) => ({
-    searchQuery: s.searchQuery,
-  }))
+  const searchQuery = useAppStore((s) => s.searchQuery)
   const {
     setSearchQuery,
     toggleMembers,

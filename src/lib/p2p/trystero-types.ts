@@ -1,84 +1,167 @@
 /**
- * PeerCord - Trystero tipleri (tam tip tanımları eksikse)
- * @noble paketleriyle birlikte kullanılır
+ * PeerCord - Trystero 0.26 tipleri
+ * @trystero-p2p/core paketinden uyarlanmıştır
  */
 
-// Room nesnesi tipi
-export interface Room {
-  selfId: string;
-  leave(): void;
-  addStream(stream: MediaStream, options?: { target?: string | string[]; metadata?: unknown }): void;
-  removeStream(stream: MediaStream, options?: { target?: string | string[] }): void;
-  onPeerJoin: ((peerId: string) => void) | null;
-  onPeerLeave: ((peerId: string) => void) | null;
-  onPeerStream: ((stream: MediaStream, peerId: string, metadata?: unknown) => void) | null;
-  onMessage: ((data: unknown, context: { peerId: string }) => void) | null;
-  makeAction(id: string, config?: ActionConfig): ActionInstance;
-  ping?(peerId: string): Promise<number>;
-  readonly roomId?: string;
-}
+// Temel tipler
+export type JsonPrimitive = null | string | number | boolean;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+export type DataPayload = JsonValue | Blob | ArrayBuffer | ArrayBufferView;
+export type PeerTarget = string | string[] | null;
 
-// Action konfigürasyonu
-export interface ActionConfig {
-  kind?: 'request' | 'response';
-  onRequest?: (data: unknown) => unknown | Promise<unknown>;
-  onReceive?: (ctx: ActionContext) => boolean | Promise<boolean>;
-  onReceiveProgress?: (percent: number, ctx: { peerId: string; metadata?: unknown }) => void;
-}
-
-// Action bağlamı
-export interface ActionContext {
-  byteLength: number;
+// Action progress context
+export interface ActionProgressContext {
   peerId: string;
-  metadata?: unknown;
-  kind?: string;
+  metadata?: JsonValue;
+}
+export type ActionProgressHandler = (progress: number, context: ActionProgressContext) => void;
+
+// Message action context
+export interface MessageContext {
+  peerId: string;
+  metadata?: JsonValue;
+}
+
+// Request action context
+export interface RequestContext {
+  peerId: string;
+  metadata?: JsonValue;
   signal: AbortSignal;
 }
 
-// Action örneği
-export interface ActionInstance {
-  send<T = unknown>(data: T | ArrayBuffer, options?: SendOptions): Promise<void>;
-  request<T>(data: unknown, options: RequestOptions): Promise<T>;
-  requestMany<T>(data: unknown, options: RequestManyOptions): Promise<Record<string, PromiseSettledResult<T>>>;
-  onMessage: ((data: unknown, ctx: { peerId: string }) => void) | null;
-  onReceive: ActionContext | ((ctx: ActionContext) => boolean | Promise<boolean>) | null;
-  onReceiveProgress: ((percent: number, ctx: { peerId: string; metadata?: unknown }) => void) | null;
+// Action receive context
+export interface ActionReceiveContext {
+  peerId: string;
+  byteLength: number;
+  kind: 'message' | 'request' | 'response';
+  signal: AbortSignal;
+  metadata?: JsonValue;
+}
+export type ActionReceiveHandler = (context: ActionReceiveContext) => boolean | Promise<boolean>;
+
+// MessageAction config
+export interface MessageActionConfig<T extends DataPayload = DataPayload> {
+  kind?: 'message';
+  onMessage?: (data: T, context: MessageContext) => void | Promise<void>;
+  onReceiveProgress?: ActionProgressHandler;
+  onReceive?: ActionReceiveHandler;
 }
 
-// Send seçenekleri
+// RequestAction config
+export interface RequestActionConfig<T extends DataPayload = DataPayload, R extends DataPayload = DataPayload> {
+  kind: 'request';
+  onRequest?: (data: T, context: RequestContext) => R | Promise<R>;
+  onReceiveProgress?: ActionProgressHandler;
+  onReceive?: ActionReceiveHandler;
+}
+
+// Send options
 export interface SendOptions {
-  target?: string | string[];
-  metadata?: unknown;
+  target?: PeerTarget;
+  metadata?: JsonValue;
+  onProgress?: ActionProgressHandler;
   signal?: AbortSignal;
 }
 
-// Request seçenekleri
+// Request options
 export interface RequestOptions {
   target: string;
+  metadata?: JsonValue;
   timeoutMs?: number;
-  metadata?: unknown;
+  onProgress?: ActionProgressHandler;
   signal?: AbortSignal;
-  onProgress?: (percent: number, ctx: { peerId: string; metadata?: unknown }) => void;
 }
 
-// Request many seçenekleri
-export interface RequestManyOptions {
+// Request many options
+export interface RequestManyOptions<R extends DataPayload = DataPayload> {
   targets: string[];
+  metadata?: JsonValue;
   timeoutMs?: number;
-  metadata?: unknown;
+  onProgress?: ActionProgressHandler;
+  onResult?: (result: PeerResult<R>) => void;
   signal?: AbortSignal;
-  onResult?: (result: PromiseSettledResult<{ peerId: string; value: unknown }>) => void;
 }
 
-// Promise settles result
-export interface PromiseSettledResult<T> {
-  status: 'fulfilled' | 'rejected';
-  value?: T;
-  reason?: unknown;
+// Peer result
+export type PeerResult<R extends DataPayload = DataPayload> =
+  | { peerId: string; status: 'fulfilled'; value: R }
+  | { peerId: string; status: 'timeout' }
+  | { peerId: string; status: 'rejected'; error: Error }
+  | { peerId: string; status: 'disconnected' };
+
+// MessageAction arayüzü (trystero 0.26)
+export interface MessageAction<T extends DataPayload = DataPayload> {
+  send: (data: T, options?: SendOptions) => Promise<void>;
+  onMessage: ((data: T, context: MessageContext) => void | Promise<void>) | null;
+  onReceiveProgress: ActionProgressHandler | null;
+  onReceive: ActionReceiveHandler | null;
 }
 
-// Self ID export (trystero'dan)
-export { selfId } from 'trystero';
+// RequestAction arayüzü
+export interface RequestAction<T extends DataPayload = DataPayload, R extends DataPayload = DataPayload> {
+  request: (data: T, options: RequestOptions) => Promise<R>;
+  requestMany: (data: T, options: RequestManyOptions<R>) => Promise<PeerResult<R>[]>;
+  onRequest: ((data: T, context: RequestContext) => R | Promise<R>) | null;
+  onReceiveProgress: ActionProgressHandler | null;
+  onReceive: ActionReceiveHandler | null;
+}
 
-// Action tipi (trystero'dan)
-export type Action = ActionInstance;
+// Media options
+export interface AddMediaOptions {
+  target?: PeerTarget;
+  metadata?: JsonValue;
+}
+
+export interface RemoveMediaOptions {
+  target?: PeerTarget;
+}
+
+// Room arayüzü (trystero 0.26)
+export interface Room {
+  makeAction: {
+    <T extends DataPayload = DataPayload>(namespace: string, config?: MessageActionConfig<T>): MessageAction<T>;
+    <T extends DataPayload = DataPayload, R extends DataPayload = DataPayload>(
+      namespace: string,
+      config: RequestActionConfig<T, R>
+    ): RequestAction<T, R>;
+  };
+  ping: (id: string) => Promise<number>;
+  leave: () => Promise<void>;
+  isPassive: () => boolean;
+  getPeers: () => Record<string, RTCPeerConnection>;
+  addStream: (stream: MediaStream, options?: AddMediaOptions) => Promise<void>[];
+  removeStream: (stream: MediaStream, options?: RemoveMediaOptions) => void;
+  addTrack: (track: MediaStreamTrack, stream: MediaStream, options?: AddMediaOptions) => Promise<void>[];
+  removeTrack: (track: MediaStreamTrack, options?: RemoveMediaOptions) => void;
+  replaceTrack: (oldTrack: MediaStreamTrack, newTrack: MediaStreamTrack, options?: AddMediaOptions) => Promise<void>[];
+  onPeerJoin: ((peerId: string) => void) | null;
+  onPeerLeave: ((peerId: string) => void) | null;
+  onPeerStream: ((stream: MediaStream, peerId: string, metadata?: JsonValue) => void) | null;
+  onPeerTrack: ((track: MediaStreamTrack, stream: MediaStream, peerId: string, metadata?: JsonValue) => void) | null;
+}
+
+// JoinRoom config
+export interface BaseRoomConfig {
+  appId: string;
+  maxReceiveBytes?: number;
+  password?: string;
+  passive?: boolean;
+  relayConfig?: {
+    manualReconnection?: boolean;
+    warnOnRelayFailure?: boolean;
+    urls?: string[];
+    redundancy?: number;
+  };
+  trickleIce?: boolean;
+  rtcConfig?: RTCConfiguration;
+  rtcPolyfill?: typeof RTCPeerConnection;
+  turnConfig?: Array<{
+    urls: string | string[];
+    username?: string;
+    credential?: string;
+    credentialType?: string;
+  }>;
+}
+
+// Self ID (trystero'dan export edilir)
+export { selfId } from 'trystero/nostr';

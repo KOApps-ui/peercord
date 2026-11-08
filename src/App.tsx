@@ -121,9 +121,9 @@ function GuildView(): ReactNode {
 
   // Ekran paylaşımı için ilk remote stream'in peerId'sini al
   const firstRemoteScreenPeerId = Object.keys(remoteScreenStreams)[0]
-  const firstRemoteScreenName = firstRemoteScreenPeerId
-    ? useAppStore((s) => s.members[firstRemoteScreenPeerId]?.name || 'Bilinmeyen')
-    : ''
+  const firstRemoteScreenName = useAppStore((s) =>
+    firstRemoteScreenPeerId ? s.members[firstRemoteScreenPeerId]?.name || 'Bilinmeyen' : '',
+  )
 
   return (
     <AppShell
@@ -139,36 +139,44 @@ function GuildView(): ReactNode {
         </>
       )}
 
-      {/* Ana içerik alanı */}
-      <div className="relative flex h-full w-full flex-col overflow-hidden">
-        {activeChannel?.type === 'voice' ? (
-          <VoiceStage channel={activeChannel} onClose={toggleMembers} />
-        ) : activeChannel?.type === 'text' ? (
+      {/* Ana içerik alanı: Content (kayan) + sabit alt composer */}
+      <div className="relative flex h-full w-full flex-col overflow-hidden min-w-0">
+        {activeVoiceChannel && (
           <>
-            <MessageList channelId={activeChannel.id} />
-            <MessageComposer channelId={activeChannel.id} />
+            <VoiceBar channel={activeVoiceChannel} />
+            <VoiceConnectionBanner />
           </>
-        ) : (
-          <div className="flex h-full items-center justify-center pc-panel">
-            <div className="text-center px-6">
-              <p className="text-[hsl(var(--pc-text-muted))]">Kanal seçilmedi</p>
+        )}
+
+        <div className="flex-1 min-h-0 overflow-hidden relative">
+          {activeChannel?.type === 'voice' ? (
+            <VoiceStage channel={activeChannel} onClose={toggleMembers} />
+          ) : activeChannel?.type === 'text' ? (
+            <>
+              <MessageList
+                channelId={activeChannel.id}
+                className="flex-1 min-h-0 overflow-y-auto"
+              />
+              {activeVoiceChannel && <VoiceControls />}
+              <MessageComposer channelId={activeChannel.id} />
+            </>
+          ) : (
+            <div className="flex h-full items-center justify-center pc-panel">
+              <div className="text-center px-6">
+                <p className="text-[hsl(var(--pc-text-muted))]">Kanal seçilmedi</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* VoiceControls - sesli kanaldayken ve metin kanalındaysa composer'ın üstünde */}
-        {activeVoiceChannel && activeChannel?.type === 'text' && (
-          <VoiceControls />
-        )}
-
-        {/* ScreenShareView overlay */}
-        {(Object.keys(remoteScreenStreams).length > 0 || screenSharing) && firstRemoteScreenPeerId && (
-          <ScreenShareView
-            peerId={firstRemoteScreenPeerId}
-            name={firstRemoteScreenName}
-            onClose={() => {}}
-          />
-        )}
+          {/* ScreenShareView overlay */}
+          {(Object.keys(remoteScreenStreams).length > 0 || screenSharing) && firstRemoteScreenPeerId && (
+            <ScreenShareView
+              peerId={firstRemoteScreenPeerId}
+              name={firstRemoteScreenName}
+              onClose={() => {}}
+            />
+          )}
+        </div>
       </div>
     </AppShell>
   )
@@ -176,9 +184,11 @@ function GuildView(): ReactNode {
 
 /* ------------------------------- App ------------------------------- */
 export default function App(): ReactNode {
-  const { ready, guild, error, settings, commandPaletteOpen } = useAppStore(
-    (s) => ({ ready: s.ready, guild: s.guild, error: s.error, settings: s.settings, commandPaletteOpen: s.commandPaletteOpen })
-  )
+  const ready = useAppStore((s) => s.ready)
+  const guild = useAppStore((s) => s.guild)
+  const error = useAppStore((s) => s.error)
+  const settings = useAppStore((s) => s.settings)
+  const commandPaletteOpen = useAppStore((s) => s.commandPaletteOpen)
   const { bootstrap, clearError, setCommandPaletteOpen } = useActions()
 
   const [searchOpen, setSearchOpen] = useState(false)
@@ -272,13 +282,15 @@ export default function App(): ReactNode {
             {!guild ? (
               <WelcomeScreen />
             ) : (
-              <GuildView />
+              <>
+                <GuildView />
+                <NotificationCenter />
+              </>
             )}
 
-            {/* Global bileşenler - her zaman render edilir */}
+            {/* Global bileşenler - guild var her zaman render edilir */}
             <ModalRouter />
             <ToastViewport />
-            <NotificationCenter />
             <SearchPanel open={searchOpen} onClose={() => setSearchOpen(false)} />
             <CommandPalette />
           </div>

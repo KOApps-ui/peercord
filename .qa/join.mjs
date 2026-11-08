@@ -1,0 +1,11 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch()
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } })
+p.on('console', m => console.log(m.type().toUpperCase()+':', m.text().slice(0,220)))
+p.on('pageerror', e => console.log('PAGEERROR:', e.message))
+await p.goto('http://localhost:5180/#/oda/room_2cdfd3f2253d42ea', { waitUntil: 'domcontentloaded' })
+await p.waitForTimeout(8000)
+console.log('HASH:', await p.evaluate(() => location.hash))
+console.log('LS:', await p.evaluate(() => ({...localStorage})))
+console.log('BODY:', (await p.locator('body').innerText()).slice(0,400).replace(/\n/g,' | '))
+await b.close()

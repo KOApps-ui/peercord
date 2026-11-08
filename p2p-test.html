@@ -1,0 +1,14 @@
+<!doctype html><html><body><pre id="log"></pre>
+<script type="module">
+import { joinRoom } from 'trystero/nostr'
+const log = (...a) => { document.getElementById('log').textContent += a.join(' ') + '\n'; console.log(...a) }
+const roomId = new URLSearchParams(location.search).get('room') || 'test-room-1'
+const cfg = { appId: 'peercord-v1', relayUrls: ['wss://nos.lol','wss://nostr.wine','wss://nostr.mom','wss://relay.snort.social'] }
+const room = joinRoom(cfg, roomId)
+log('joined as', room.selfId)
+room.onPeerJoin = id => log('PEER JOIN', id)
+room.onPeerLeave = id => log('PEER LEAVE', id)
+const [send, get] = room.makeAction('msg')
+get((d, peerId) => log('MSG from', peerId, JSON.stringify(d)))
+setInterval(() => send({ hi: Date.now() }), 3000)
+</script></body></html>

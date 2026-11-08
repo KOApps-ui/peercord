@@ -22,13 +22,9 @@ import type { PresenceStatus } from '@/types'
 
 export function UserPanel(): ReactNode {
   const me = useMe()
-  const { localMuted, localDeafened, localSpeaking } = useAppStore(
-    (s) => ({
-      localMuted: s.localMuted,
-      localDeafened: s.localDeafened,
-      localSpeaking: s.localSpeaking,
-    }),
-  )
+  const localMuted = useAppStore((s) => s.localMuted)
+  const localDeafened = useAppStore((s) => s.localDeafened)
+  const localSpeaking = useAppStore((s) => s.localSpeaking)
   const { status } = useConnection()
   const { setStatus, toggleMute, toggleDeafen, openModal } = useActions()
 

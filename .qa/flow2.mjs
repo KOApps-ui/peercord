@@ -1,0 +1,10 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch()
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } })
+await p.goto('http://localhost:5180/#/oda/room_cd890a0e25fa4b0f', { waitUntil: 'networkidle' })
+await p.waitForTimeout(3000)
+await p.keyboard.press('Escape')
+await p.waitForTimeout(800)
+await p.screenshot({ path: '/tmp/pc-4-shell.png' })
+console.log('BODY:', (await p.locator('body').innerText()).slice(0,700))
+await b.close()

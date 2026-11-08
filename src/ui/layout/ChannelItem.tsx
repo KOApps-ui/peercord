@@ -1,28 +1,25 @@
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import type { Channel, ID, VoiceMemberState } from '@/types'
 import { useAppStore, useVoiceMembers } from '@/lib/store'
-import { Avatar, IconButton, Dot, Badge } from '@/ui/primitives'
-import { Hash, Speaker, MoreHorizontal, Lock, Clock } from 'lucide-react'
+import { Avatar, Dot } from '@/ui/primitives'
+import { Hash, Speaker, Lock } from 'lucide-react'
 
 export interface ChannelItemProps {
   channel: Channel
   isActive: boolean
   onSelect: (channelId: ID) => void
-  onSettings: (channelId: ID) => void
+  onSettings?: (channelId: ID) => void
 }
 
 export function ChannelItem({
   channel,
   isActive,
   onSelect,
-  onSettings,
 }: ChannelItemProps): ReactNode {
-  const { reads, lastActivity } = useAppStore((s) => ({
-    reads: s.reads,
-    lastActivity: s.lastActivity,
-  }))
+  const reads = useAppStore((s) => s.reads)
+  const lastActivity = useAppStore((s) => s.lastActivity)
   const voiceMembers = useVoiceMembers()
 
   const unread =
@@ -63,56 +60,14 @@ export function ChannelItem({
         <Lock className="shrink-0 h-3.5 w-3.5 opacity-60" />
       )}
 
-      <AnimatePresence>
-        {isActive && (
-          <motion.span
-            initial={{ opacity: 0, x: 6 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 6 }}
-            transition={{ duration: 0.15 }}
-            className="ml-auto shrink-0"
-          >
-            <Badge tone="neutral" className="px-2 py-0.5">
-              <Clock className="mr-1 h-3 w-3" />
-              <span className="text-[10px]">Şimdi</span>
-            </Badge>
-          </motion.span>
-        )}
-      </AnimatePresence>
-
       {channel.type === 'voice' && inVoice.length > 0 && (
-        <div className="ml-auto flex shrink-0 items-center gap-1.5">
+        <span className="ml-auto flex shrink-0 items-center gap-1.5">
           <AvatarStackMini
             members={inVoice.slice(0, 6)}
             speaking={new Set(inVoice.filter((m) => m.speaking).map((m) => m.userId))}
           />
-        </div>
+        </span>
       )}
-
-      <AnimatePresence>
-        {isActive && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-2.5 flex h-6 w-6 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <IconButton
-              aria-label={`${channel.name} ayarları`}
-              tooltip="Kanal ayarları"
-              onClick={(e) => {
-                e.stopPropagation()
-                onSettings(channel.id)
-              }}
-              size="sm"
-              variant="ghost"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </IconButton>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.button>
   )
 }

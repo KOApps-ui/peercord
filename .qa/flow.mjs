@@ -1,0 +1,22 @@
+import { chromium } from 'playwright'
+const b = await chromium.launch()
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } })
+const p = await ctx.newPage()
+const errs = []
+p.on('pageerror', e => errs.push('PAGEERROR: ' + e.message))
+p.on('console', m => { if (m.type()==='error') errs.push('C: '+m.text().slice(0,200)) })
+
+await p.goto('http://localhost:5180/', { waitUntil: 'networkidle' })
+await p.getByRole('button', { name: 'Sunucu Oluştur' }).first().click()
+await p.waitForTimeout(800)
+await p.screenshot({ path: '/tmp/pc-2-create-modal.png' })
+const nameInput = p.getByLabel('Sunucu adı')
+await nameInput.fill('Gece Kulübü')
+await p.waitForTimeout(300)
+await p.getByRole('button', { name: 'Sunucu Oluştur' }).last().click()
+await p.waitForTimeout(4000)
+await p.screenshot({ path: '/tmp/pc-3-guild.png' })
+console.log('URL:', p.url())
+console.log('BODY:', (await p.locator('body').innerText()).slice(0, 600))
+console.log('ERRORS:', errs.slice(0,8))
+await b.close()

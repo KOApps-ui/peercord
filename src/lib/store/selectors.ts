@@ -2,6 +2,7 @@
  * PeerCord — Zustand Seçicileri (Hooks)
  * Contract'taki tüm public API hook'ları
  */
+import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from './store'
 import type {
@@ -69,7 +70,11 @@ export function useChannels(): Channel[] {
 
 /** Kanallar kategoriye göre gruplanmış */
 export function useChannelGroups(): ChannelGroups {
-  return useAppStore(useShallow(state => groupChannels(state.channels, state.categories)))
+  const channels = useAppStore(state => state.channels)
+  const categories = useAppStore(state => state.categories)
+  // groupChannels her çağrıda yeni referans üretir; useMemo olmadan
+  // React "getSnapshot should be cached" sonsuz döngüsüne girer.
+  return useMemo(() => groupChannels(channels, categories), [channels, categories])
 }
 
 /** Aktif kanal */

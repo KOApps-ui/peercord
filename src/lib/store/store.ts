@@ -135,7 +135,7 @@ const initialState: AppStoreState = {
   modal: null,
   modalPayload: undefined,
   sidebarOpen: true,
-  membersOpen: false,
+  membersOpen: true,
   commandPaletteOpen: false,
   searchQuery: '',
   ready: false,
@@ -484,16 +484,32 @@ export const useAppStore = create<StoreWithInternals>()(
             await _ensureProfile()
 
             // Hash'ten oda bilgisini çöz
+            // Desteklenen formatlar:
+            // - #/oda/<roomId>?s=<secret>
+            // - #<roomId>?s=<secret> (eski format)
             let roomId: string | null = null
             let secret: string | undefined
 
-            const hash = location.hash.slice(1)
-            if (hash.startsWith('oda/')) {
-              const [, roomPart] = hash.split('/')
-              const [room, ...secretParts] = roomPart.split('?')
-              roomId = room
-              const params = new URLSearchParams(secretParts.join('?'))
-              secret = params.get('s') || undefined
+            const hash = location.hash // "#/oda/xxx" veya "#xxx"
+            const cleanHash = hash.startsWith('#') ? hash.slice(1) : hash // "#/oda/xxx" -> "/oda/xxx"
+            const normalizedHash = cleanHash.startsWith('/') ? cleanHash.slice(1) : cleanHash
+
+            if (normalizedHash.startsWith('oda/') || normalizedHash.startsWith('oda?')) {
+              const withoutPrefix = normalizedHash.slice(4) // "oda/" sonrası
+              const [parsedRoomId, ...secretParts] = withoutPrefix.split('?')
+              roomId = parsedRoomId.replace(/^\//, '')
+              if (secretParts.length > 0) {
+                const params = new URLSearchParams(secretParts.join('?'))
+                secret = params.get('s') || undefined
+              }
+            } else if (normalizedHash.length > 0 && !normalizedHash.startsWith('/')) {
+              // Eskiden: #roomId?secret=...
+              const [parsedRoomId, ...secretParts] = normalizedHash.split('?')
+              roomId = parsedRoomId
+              if (secretParts.length > 0) {
+                const params = new URLSearchParams(secretParts.join('?'))
+                secret = params.get('s') || undefined
+              }
             } else {
               // localStorage'dan son oda
               roomId = localStorage.getItem('peercord.lastRoom')
@@ -559,7 +575,7 @@ export const useAppStore = create<StoreWithInternals>()(
             channels: guild.channels,
             categories: guild.categories,
             activeChannelId: firstTextChannel?.id || null,
-            connection: { status: 'connected', peerCount: 1, roomId, strategy: 'nostr' },
+            connection: { status: 'connected', peerCount: 0, roomId, strategy: 'nostr' },
             ready: true,
             me: { ...me, roleIds: [guild.roles[1]?.id || ''] }, // Owner rolü
           })
@@ -567,6 +583,9 @@ export const useAppStore = create<StoreWithInternals>()(
           // Kendi profilini Yjs'e kaydet
           await ensureProfileInYjs(_yjs, get().me!)
 
+          // Modal kapat
+          actions.closeModal()
+          
           get().pushToast(makeToast('success', 'Sunucu Oluşturuldu', `"${name}" sunucusu hazır.`))
         },
 
@@ -634,7 +653,7 @@ export const useAppStore = create<StoreWithInternals>()(
             channels: guild.channels,
             categories: guild.categories,
             activeChannelId: firstTextChannel?.id || null,
-            connection: { status: 'connected', peerCount: _textTransport.peers.size + 1, roomId, strategy: 'nostr' },
+            connection: { status: 'connected', peerCount: 0, roomId, strategy: 'nostr' },
             ready: true,
           })
 

@@ -21,11 +21,16 @@ export function AppShell({
   children,
   members,
 }: AppShellProps): ReactNode {
-  const { sidebarOpen, membersOpen } = useAppStore((s) => ({
-    sidebarOpen: s.sidebarOpen,
-    membersOpen: s.membersOpen,
-  }))
+  const sidebarOpen = useAppStore((s) => s.sidebarOpen)
+  const membersOpen = useAppStore((s) => s.membersOpen)
   const { toggleSidebar } = useActions()
+
+  // Referans genişlikler (index.css'teki CSS değişkenleri override edilir):
+  // rail 72px, sidebar 248px, members 240px — hiçbir sütun dışına taşmaz.
+  const rootStyle = {
+    '--pc-rail-w': '72px',
+    '--pc-members-w': '240px',
+  }
 
   return (
     <motion.div
@@ -33,10 +38,13 @@ export function AppShell({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="flex h-screen w-screen overflow-hidden bg-[hsl(var(--pc-bg))]"
+      style={rootStyle as unknown as React.CSSProperties}
+      className="flex h-[100dvh] w-screen overflow-hidden bg-[hsl(var(--pc-bg))]"
     >
-      <ServerRail />
+      {/* Sunucu rayı: masaüstünde her zaman görünür, mobilde gizlenir */}
+      <ServerRail className="hidden lg:flex" />
 
+      {/* Mobil sidebar arkaplanı */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
@@ -53,27 +61,38 @@ export function AppShell({
 
       <div
         className={cn(
-          'relative flex h-full w-full flex-col lg:flex-row',
+          'relative flex h-full w-full flex-col lg:flex-row min-w-0',
           'transition-all duration-300 ease-in-out',
         )}
       >
+        {/* Kanal kenar çubuğu (masaüstü sabit, mobil drawer) */}
         <aside
           className={cn(
-            'flex h-full w-[var(--pc-sidebar-w)] shrink-0 transform transition-transform duration-300 ease-in-out',
+            'flex h-full w-[var(--pc-sidebar-w)] flex-col shrink-0 min-h-0 z-30',
+            'bg-[hsl(var(--pc-surface))] border-r border-[hsl(var(--pc-border-soft))]',
+            'fixed inset-y-0 left-0 lg:!static lg:relative lg:z-auto',
+            'transform transition-transform duration-300 ease-in-out',
             sidebarOpen ? 'translate-x-0 lg:translate-x-0' : '-translate-x-full lg:translate-x-0',
-            'z-30 lg:z-auto lg:static',
           )}
         >
           {sidebar ?? <ChannelSidebar />}
         </aside>
 
-        <main className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[hsl(var(--pc-bg))]">
+        {/* Ana içerik */}
+        <main
+          className={cn(
+            'flex-1 min-w-0 flex flex-col min-h-0 overflow-hidden',
+            'bg-[hsl(var(--pc-bg))]',
+            'lg:ml-0',
+          )}
+        >
           {header ?? <ChannelHeader channel={null} />}
           <div className="flex-1 min-h-0 overflow-hidden relative">
             {children}
           </div>
         </main>
 
+        {/* Üye paneli (varsayılan açık; masaüstü sabit, mobil drawer) */}
         <AnimatePresence>
           {membersOpen && (
             <motion.div
@@ -82,10 +101,13 @@ export function AppShell({
               exit={{ opacity: 0, x: 12 }}
               transition={{ duration: 0.18 }}
               className={cn(
-                'flex h-full w-[var(--pc-members-w)] shrink-0 z-20',
-                'bg-[hsl(var(--pc-surface))] border-l border-[hsl(var(--pc-border-soft))] shadow-float',
-                'lg:static lg:relative',
+                'flex h-full w-[var(--pc-members-w)] flex-col shrink-0 z-20',
+                'bg-[hsl(var(--pc-surface))] border-l border-[hsl(var(--pc-border-soft))] shadow-panel',
+                'fixed inset-y-0 right-0 lg:!static lg:relative lg:z-auto lg:transform-none',
+                'transform transition-transform duration-300 ease-in-out',
+                membersOpen ? 'translate-x-0 lg:translate-x-0' : 'translate-x-full',
               )}
+              data-members
             >
               {members ?? <MemberSidebar />}
             </motion.div>
@@ -93,6 +115,7 @@ export function AppShell({
         </AnimatePresence>
       </div>
 
+      {/* Mobil: sunucu listesini aç/kapa düğmesi */}
       <motion.button
         whileTap={{ scale: 0.92 }}
         onClick={() => toggleSidebar(true)}

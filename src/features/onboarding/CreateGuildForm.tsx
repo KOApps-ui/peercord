@@ -12,7 +12,7 @@ export function CreateGuildForm() {
   const [encrypted, setEncrypted] = useState(false)
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const { createGuild, pushToast } = useActions()
+  const { createGuild, pushToast, closeModal } = useActions()
 
   const handleCreate = async () => {
     // Doğrulama
@@ -42,6 +42,8 @@ export function CreateGuildForm() {
         encrypted,
         secret: encrypted ? password : undefined,
       })
+      // Modal kapat ve URL güncelle (createGuild içinde yapılır)
+      closeModal()
       pushToast({
         kind: 'success',
         title: 'Sunucu oluşturuldu',

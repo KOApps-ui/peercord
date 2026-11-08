@@ -8,11 +8,7 @@ import {
   useActiveChannel,
 } from '@/lib/store'
 import { Input, ScrollArea } from '@/ui/primitives'
-import {
-  Plus,
-  Users,
-  Mail,
-} from 'lucide-react'
+import { Plus, Mail, ChevronRight, Users } from 'lucide-react'
 import { ChannelItem } from './ChannelItem'
 import { UserPanel } from './UserPanel'
 
@@ -50,11 +46,13 @@ export function ChannelSidebar(): React.ReactNode {
       exit={{ opacity: 0, x: 12 }}
       transition={{ duration: 0.18 }}
       className={cn(
-        'flex h-full w-[var(--pc-sidebar-w)] flex-col shrink-0',
+        'flex h-full w-[var(--pc-sidebar-w)] flex-col shrink-0 min-h-0',
         'bg-[hsl(var(--pc-surface))] border-r border-[hsl(var(--pc-border-soft))]',
       )}
+      data-sidebar
     >
-      <div className="flex flex-col gap-2 px-3 py-2">
+      {/* Sabit üst başlık: 56px — sunucu adı, üye sayısı, sağda chevron */}
+      <div className="flex shrink-0 items-center gap-2 px-3 py-2.5 h-[56px]">
         <motion.button
           whileTap={{ scale: 0.96 }}
           onClick={() => openModal('guild-settings')}
@@ -74,20 +72,21 @@ export function ChannelSidebar(): React.ReactNode {
               {guild.channels.length} üye
             </p>
           </div>
+          <ChevronRight className="ml-auto shrink-0 h-3.5 w-3.5 text-[hsl(var(--pc-text-subtle))]" />
         </motion.button>
-
-        <motion.button
-          whileTap={{ scale: 0.96 }}
-          onClick={() => openModal('invite')}
-          aria-label="Davet linki oluştur"
-          title="Sunucuya davet et"
-          className="flex w-full items-center justify-center gap-2 px-2 py-1.5 rounded-[var(--radius-md)] text-xs font-medium text-[hsl(var(--pc-accent))] hover:bg-[hsl(var(--pc-accent-soft))] transition-colors duration-150"
-        >
-          <Mail className="h-3.5 w-3.5" /> Davet et
-        </motion.button>
-
-        <div className="flex h-px w-full bg-[hsl(var(--pc-border-soft))] my-1" />
       </div>
+
+      <motion.button
+        whileTap={{ scale: 0.96 }}
+        onClick={() => openModal('invite')}
+        aria-label="Davet linki oluştur"
+        title="Sunucuya davet et"
+        className="flex w-full items-center justify-center gap-2 px-2 py-1.5 rounded-[var(--radius-md)] text-xs font-medium text-[hsl(var(--pc-accent))] hover:bg-[hsl(var(--pc-accent-soft))] transition-colors duration-150"
+      >
+        <Mail className="h-3.5 w-3.5" /> Davet et
+      </motion.button>
+
+      <div className="flex h-px w-full bg-[hsl(var(--pc-border-soft))] my-1" />
 
       <ScrollArea className="flex-1 min-h-0 px-1">
         <div className="flex flex-col gap-1 px-1">
@@ -169,14 +168,17 @@ export function ChannelSidebar(): React.ReactNode {
         </div>
       </ScrollArea>
 
+      {/* Alt banda: UserPanel (sidebar içinde, rail'de değil) — 64px */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.18 }}
-        className="px-2 py-2 border-t border-[hsl(var(--pc-border-soft))]"
+        className="flex shrink-0 border-t border-[hsl(var(--pc-border-soft))] px-2"
       >
-        <UserPanel />
+        <div className="flex h-[64px] w-full items-center justify-between">
+          <UserPanel />
+        </div>
       </motion.div>
     </motion.div>
   )

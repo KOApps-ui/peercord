@@ -38,7 +38,8 @@ interface ToastMessageInternal {
 }
 
 export function ToastViewport() {
-  const { toasts, dismissToast } = useAppStore((s) => ({ toasts: s.toasts, dismissToast: s.actions.dismissToast }))
+  const toasts = useAppStore((s) => s.toasts)
+  const dismissToast = useAppStore((s) => s.actions.dismissToast)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Temizlik: bileşen olduğunda tüm toast'ları DOM'dan kaldır
@@ -53,7 +54,7 @@ export function ToastViewport() {
     return (
       <div
         ref={containerRef}
-        className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
+        className="fixed bottom-20 right-4 z-[70] w-[360px] flex flex-col gap-2 pointer-events-none"
       >
         <AnimatePresence>
           {toasts.length === 0 && (
@@ -74,7 +75,7 @@ export function ToastViewport() {
   return (
     <div
       ref={containerRef}
-      className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
+      className="fixed bottom-20 right-4 z-[70] w-[360px] flex flex-col gap-2 pointer-events-none"
     >
       <AnimatePresence initial={false}>
         {toasts.map((toast) => {
@@ -92,7 +93,7 @@ export function ToastViewport() {
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               data-toast
               className={cn(
-                'relative flex items-start gap-3 p-3 rounded-xl shadow-lg max-w-xs',
+                'relative flex items-start gap-3 p-3 rounded-xl shadow-lg w-full max-w-[360px]',
                 'border bg-[hsl(var(--pc-surface))]',
                 KIND_BG[t.kind]
               )}

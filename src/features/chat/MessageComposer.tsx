@@ -1,45 +1,15 @@
 import * as React from 'react'
 import { useAppStore } from '@/lib/store'
-import { Textarea } from '@/ui/primitives'
+import { Textarea, Button } from '@/ui/primitives'
 import { EmojiPicker } from './EmojiPicker'
-import { Button } from '@/ui/primitives'
 
 type MessageComposerProps = {
   channelId?: string
 }
 
 export function MessageComposer({ channelId }: MessageComposerProps) {
-  const { sendMessage, setTyping } = useAppStore.getState().actions
-  const [typing, setTypingState] = React.useState(false)
+  const { sendMessage } = useAppStore.getState().actions
   const [emojiOpen, setEmojiOpen] = React.useState(false)
-
-  // Throttled typing indicator
-  React.useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>
-    const throttle = 3000
-    const sendTyping = () => {
-      setTypingState(true)
-      timer = setTimeout(() => setTypingState(false), throttle)
-      setTyping(channelId!)
-    }
-    const handleKeyDown = () => {
-      if (!typing) {
-        setTypingState(true)
-        timer = setTimeout(sendTyping, throttle)
-      }
-    }
-    const handleKeyUp = () => {
-      clearTimeout(timer)
-      setTypingState(false)
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
-    }
-  }, [channelId, typing, setTyping])
 
   if (!channelId) {
     return null
@@ -47,29 +17,22 @@ export function MessageComposer({ channelId }: MessageComposerProps) {
 
   const handleSend = async (content: string) => {
     if (!content.trim()) return
-    await sendMessage(channelId, content, {
-      replyTo: useAppStore.getState().activeChannelId
-        ? /* reply reference */ undefined
-        : undefined,
-    })
-    // Clear textarea after send
-    // (handled by parent state)
+    await sendMessage(channelId, content)
   }
 
   return (
-    <div className="pc-scroll-fade w-full border-t border-border-soft pt-2 bg-background">
-      <div className="flex items-start gap-3 max-w-[900px] mx-auto">
-
-        {/* Emoji button */}
+    <div className="flex shrink-0 border-t border-[hsl(var(--pc-border-soft))] bg-[hsl(var(--pc-surface-raised))] px-4 pb-4">
+      {/* Tek satır, ortalanmış, maksimum 900px: emoji — input — Gönder */}
+      <div className="max-w-[900px] mx-auto w-full flex items-center gap-3">
         <Button
           variant="ghost"
           size="sm"
           aria-label="Emoji"
           onClick={() => setEmojiOpen(true)}
-          className="pc-focus-rounded p-1.5"
+          className="h-9 w-9 rounded-[var(--radius-md)]"
         >
           <svg
-            className="h-4 w-4 text-muted-foreground"
+            className="h-5 w-5 text-[hsl(var(--pc-text-muted))]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -82,10 +45,9 @@ export function MessageComposer({ channelId }: MessageComposerProps) {
 
         <EmojiPicker
           onSelect={(emoji: string) => {
-            // Insert emoji at cursor position
             const textarea = document.querySelector(
               'textarea'
-            ) as HTMLTextAreaElement
+            ) as HTMLTextAreaElement | null
             if (textarea) {
               const start = textarea.selectionStart
               const end = textarea.selectionEnd
@@ -94,61 +56,37 @@ export function MessageComposer({ channelId }: MessageComposerProps) {
                 emoji +
                 textarea.value.substring(end)
               textarea.selectionStart = textarea.selectionEnd = start + emoji.length
-              setEmojiOpen(false)
             }
+            setEmojiOpen(false)
           }}
           initialFocus={emojiOpen}
         />
 
-        {/* Textarea */}
-        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+        <div className="flex-1 min-w-0">
           <Textarea
-            placeholder="Mesajınız..."
+            placeholder="Mesajınız…"
             value=""
             onChange={() => {}}
             onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-              if (e.key === 'Enter') {
-                if (e.shiftKey) {
-                  // Insert newline
-                  return
-                } else {
-                  e.preventDefault()
-                  const content = /* get content from state */ ''
-                  handleSend(content)
-                }
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                const content = (e.target as HTMLTextAreaElement).value
+                handleSend(content)
               }
             }}
-            className="flex-1 rounded-none rounded-tl-md bg-transparent border-b border-border-soft resize-none pc-focus-ring:outline-none pc-focus-ring:focus-visible:outline-2 pc-focus-ring:focus-visible:outline-[var(--pc-accent)]"
+            className="flex w-full min-w-0 rounded-[var(--radius-md)] border border-[hsl(var(--pc-border))] bg-[hsl(var(--pc-surface))] px-3 py-2 text-sm text-[hsl(var(--pc-text))] placeholder-[hsl(var(--pc-text-subtle))] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[hsl(var(--pc-accent))/0.9] focus-visible:border-transparent resize-none"
+            data-composer-input
             rows={1}
             autoGrow
           />
         </div>
 
-        {/* Attach button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label="Dosya ekle"
-          className="pc-focus-rounded p-1.5"
-        >
-          <svg
-            className="h-4 w-4 text-muted-foreground"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-        </Button>
-
-        {/* Send button */}
         <Button
           type="submit"
+          variant="primary"
+          size="sm"
           disabled={false}
-          className="pc-focus-rounded bg-accent px-3 py-1.5 text-sm text-inverse hover:bg-accent-hover transition-colors"
+          className="h-9 whitespace-nowrap"
         >
           Gönder
         </Button>
