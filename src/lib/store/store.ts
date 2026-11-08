@@ -3,13 +3,12 @@
  * Tüm uygulama durumu ve eylemleri
  */
 import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
+import { devtools } from 'zustand/middleware'
 import type {
   AppStore,
   AppStoreState,
   AppStoreActions,
   Channel,
-  Guild,
   ID,
   Message,
   PeerInfo,
@@ -29,6 +28,7 @@ import type {
   SendMessageOptions,
   Permission,
   Unsubscribe,
+  FileTransferHandle,
 } from '@/lib/store/contracts'
 import {
   createYjsManager,
@@ -140,7 +140,7 @@ const initialState: AppStoreState = {
   searchQuery: '',
   ready: false,
   error: null,
-  pushToast: (toast) => {},
+  pushToast: (_toast) => {},
   dismissToast: () => {},
   transfers: {},
 }
@@ -426,7 +426,7 @@ export const useAppStore = create<StoreWithInternals>()(
         })
 
         // Progress dinle
-        const unsubProgress = _textTransport?.onFileProgress((p: {
+        _textTransport?.onFileProgress((p: {
           transferId: string
           progress: number
           bytesPerSecond: number
@@ -453,7 +453,7 @@ export const useAppStore = create<StoreWithInternals>()(
   progress: number
   bytesPerSecond: number
 }): void {
-  const { transferId, direction, progress: prog, bytesPerSecond } = progress
+  const { transferId, direction, progress: prog } = progress
   set((state: AppStoreState) => ({
     transfers: {
       ...state.transfers,
@@ -486,7 +486,6 @@ export const useAppStore = create<StoreWithInternals>()(
             // Hash'ten oda bilgisini çöz
             let roomId: string | null = null
             let secret: string | undefined
-            let guild: Guild | null = null
 
             const hash = location.hash.slice(1)
             if (hash.startsWith('oda/')) {
@@ -505,7 +504,7 @@ export const useAppStore = create<StoreWithInternals>()(
               // Odaya bağlan
               await actions.joinGuild({ invite: roomId, secret })
             } else {
-              set({ ready: true, guild: null })
+              set({ ready: true })
             }
           } catch (error) {
             console.error('[Store] Bootstrap hatası:', error)
@@ -548,7 +547,6 @@ export const useAppStore = create<StoreWithInternals>()(
           _yjs.sync(_textTransport)
 
           // Hash ve localStorage güncelle
-          const inviteLink = makeInviteLink(roomId, secret)
           location.hash = `#/oda/${roomId}${secret ? `?s=${secret}` : ''}`
           localStorage.setItem('peercord.lastRoom', roomId)
           if (secret) localStorage.setItem('peercord.lastSecret', secret)
@@ -724,7 +722,7 @@ export const useAppStore = create<StoreWithInternals>()(
         },
 
         createChannel: async (draft: ChannelDraft) => {
-          const { guild, me, roomId } = get()
+          const { guild, me } = get()
           if (!guild || !me || !_yjs) throw new Error('Sunucu yok')
 
           const newChannel: Channel = {
@@ -1124,7 +1122,7 @@ export const useAppStore = create<StoreWithInternals>()(
         },
 
         /* Dosya */
-        sendFile: async (channelId: ID, file: File): Promise<FileTransferHandle | null> => {
+        sendFile: async (_channelId: ID, file: File): Promise<FileTransferHandle | null> => {
           const { _textTransport: transport, peers, me } = get()
           if (!transport || !me) return null
 
@@ -1155,7 +1153,7 @@ export const useAppStore = create<StoreWithInternals>()(
           })
 
           try {
-            const attachment = await handle.promise
+            await handle.promise
             unsubProgress()
 
             set(state => ({

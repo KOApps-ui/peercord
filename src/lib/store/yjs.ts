@@ -4,7 +4,7 @@
  */
 import * as Y from 'yjs'
 import { IndexeddbPersistence } from 'y-indexeddb'
-import type { Guild, Message, UserProfile, ID } from '@/types'
+import type { Guild, Message, UserProfile, ID, UnixMs } from '@/types'
 import { YJS_KEYS } from '@/lib/p2p/contracts'
 import type { P2PTransport } from '@/lib/p2p/contracts'
 
@@ -167,7 +167,7 @@ export function createYjsManager(roomId: string): YjsManager {
     }
 
     // Gelen yjs mesajlarını dinle
-    transport.onMessage((envelope, fromPeerId) => {
+    transport.onMessage((envelope, _fromPeerId) => {
       if (envelope.type === 'yjs') {
         try {
           const update = fromBase64(envelope.payload as string)

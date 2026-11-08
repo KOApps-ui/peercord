@@ -66,7 +66,7 @@ export function MemberProfileCard({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverTrigger>{children}</PopoverTrigger>
       <PopoverContent
         side={side}
         align={align}

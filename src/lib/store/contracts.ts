@@ -2,8 +2,8 @@
  * PeerCord — uygulama mağazası sözleşmesi
  * ORKESTRA dosyası. UI katmanı yalnızca bu API'yi kullanır.
  * ------------------------------------------------------------------ */
+
 import type {
-  Attachment,
   Channel,
   ChannelType,
   ConnectionInfo,
@@ -19,16 +19,15 @@ import type {
   ThemeName,
   ToastMessage,
   TypingState,
-  Unsubscribe,
   UnixMs,
   UserProfile,
   VoiceMemberState,
 } from '@/types'
 
-import type { FileTransferHandle, P2PTransport } from '../p2p/contracts'
+/** Zustand unsubscribe tipi */
+export type Unsubscribe = () => void
 
 export type { 
-  Attachment,
   Channel,
   ChannelType,
   ConnectionInfo,
@@ -44,14 +43,13 @@ export type {
   ThemeName,
   ToastMessage,
   TypingState,
-  Unsubscribe,
   UnixMs,
   UserProfile,
   VoiceMemberState,
-  FileTransferHandle,
-  P2PTransport,
 } from '@/types'
-export type { FileTransferHandle as P2PFileTransferHandle } from '../p2p/contracts'
+
+import type { FileTransferHandle } from '../p2p/contracts'
+export type { FileTransferHandle } from '../p2p/contracts'
 
 /* ------------------------------ Yardımcı ------------------------------- */
 

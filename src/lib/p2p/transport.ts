@@ -346,9 +346,28 @@ export class P2PTransportImpl implements P2PTransport {
     const timer = window.setTimeout(() => {
       const state = this._peers.get(peerId);
       if (state?.status !== 'offline') {
-        const updatedState = { ...state, status: 'offline' as const };
-        this._peers.set(peerId, updatedState);
-        this.peersChangedHandlers.forEach(cb => cb(Array.from(this.peers.values())));
+        if (state) {
+          const updatedState: PeerInfo = {
+            peerId: state.peerId,
+            userId: state.userId,
+            name: state.name,
+            avatarSeed: state.avatarSeed,
+            accentHue: state.accentHue,
+            status: 'offline',
+            customStatus: state.customStatus,
+            roleIds: state.roleIds,
+            voiceChannelId: state.voiceChannelId,
+            muted: state.muted,
+            deafened: state.deafened,
+            speaking: state.speaking,
+            screensharing: state.screensharing,
+            lastSeen: Date.now(),
+            latencyMs: state.latencyMs,
+            isSelf: state.isSelf,
+          };
+          this._peers.set(peerId, updatedState);
+          this.peersChangedHandlers.forEach(cb => cb(Array.from(this.peers.values())));
+        }
       }
       this.presenceTimers.delete(peerId);
     }, PRESENCE_TIMEOUT);
@@ -584,7 +603,7 @@ export class P2PTransportImpl implements P2PTransport {
       this.localScreenStream = stream;
       // Ekran paylaşımını bildir
       await this.sendScreenState(true);
-      this.room.addStream(stream, { kind: 'screen' });
+      this.room.addStream(stream, { kind: 'screen' } as any);
     } else if (!stream && this.localScreenStream) {
       this.room.removeStream(this.localScreenStream);
       this.localScreenStream = null;

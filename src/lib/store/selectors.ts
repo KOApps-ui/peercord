@@ -21,7 +21,6 @@ import type {
   ConnectionInfo,
   VoiceMemberState,
   ModalKind,
-  AppStore,
 } from '@/lib/store/contracts'
 
 /* --------------------------- Yardımcılar --------------------------- */
