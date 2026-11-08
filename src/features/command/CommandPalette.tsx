@@ -1,10 +1,11 @@
 /* ------------------------------------------------------------------ *
  * PeerCord — CommandPalette
  * Fuzzy filtre, klavye navigasyonu (↑↓ Enter Esc), grupları, motion ile fade+scale.
+ * Kanallar da kanal komutu olarak listelenir.
  * ------------------------------------------------------------------ */
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion } from 'motion/react'
-import { useActions, useAppStore } from '@/lib/store'
+import { useActions, useAppStore, useChannels } from '@/lib/store'
 import { cn } from '@/lib/utils'
 import { Kbd } from '@/ui/primitives'
 
@@ -16,14 +17,15 @@ interface Command {
   description: string
   group: string
   icon?: string
+  channelId?: string
+  channelType?: 'text' | 'voice'
 }
 
-const allCommands: Command[] = [
+// Statik komutlar
+const staticCommands: Command[] = [
   { key: 'new-guild', title: 'Sunucu Oluştur', description: 'Yeni bir PeerCord odası oluştur', group: 'sunucu', icon: 'plus' },
-  { key: 'new-channel', title: 'Kanal Oluştur', description: 'Sunucunuzda yeni bir kanal ekle', group: 'sunucu', icon: 'plus' },
   { key: 'settings', title: 'Ayarlar', description: 'Kullanıcı ayarlarını aç', group: 'ayarlar', icon: 'settings' },
   { key: 'theme', title: 'Tema Değiştir', description: 'Geçerli temayı değiştir', group: 'ayarlar', icon: 'palette' },
-  { key: 'join-voice', title: 'Sesli Kanala Katıl', description: 'Aktif sesli kanalda konuş', group: 'sessiz', icon: 'mic' },
   { key: 'copy-invite', title: 'Davet Linkini Kopyala', description: 'Sunucu davet linkini panele kopyala', group: 'davet', icon: 'link' },
   { key: 'help', title: ' Yardım', description: 'Kullanım kılavuzu ve kısayollar', group: 'diğer', icon: 'help' },
 ]
@@ -51,8 +53,12 @@ function useRecentCommands(): [string[], (key: string) => void] {
 }
 
 export function CommandPalette() {
-  const { setCommandPaletteOpen, openModal, pushToast } = useActions()
-  const { commandPaletteOpen } = useAppStore()
+  const { setCommandPaletteOpen, openModal, pushToast, selectChannel, joinVoice } = useActions()
+  const state = useAppStore()
+  const channels = useChannels()
+  const activeChannelId = state.activeChannelId
+  const activeVoiceChannelId = state.activeVoiceChannelId
+  const commandPaletteOpen = state.commandPaletteOpen
   const [recent, addRecent] = useRecentCommands()
   const [query, setQuery] = useState('')
   const [focusedIndex, setFocusedIndex] = useState(0)
@@ -73,6 +79,19 @@ export function CommandPalette() {
     }
   }, [commandPaletteOpen])
 
+  // Kanal komutları - metin ve sesli kanallar
+  const channelCommands = channels.map((ch): Command => ({
+    key: `channel-${ch.id}`,
+    title: ch.type === 'voice' ? 'Katıl: ' + ch.name : 'Git: #' + ch.name,
+    description: ch.topic || (ch.type === 'voice' ? 'Sesli kanal' : 'Metin kanalı'),
+    group: ch.type === 'voice' ? 'kanallar-voice' : 'kanallar',
+    channelId: ch.id,
+    channelType: ch.type,
+  }))
+
+  // Tüm komutlar: statik + kanal komutları + son kullanımlar
+  const allCommands = [...staticCommands, ...channelCommands]
+
   // Filtrelenmiş komutlar
   const filtered = allCommands.filter(
     (c) =>
@@ -88,9 +107,9 @@ export function CommandPalette() {
     return acc
   }, {} as Record<string, Command[]>)
 
-  // Son kullanılanlar
+  // Son kullanılanlar (sadece statik komutlar)
   const recentCommands = recent
-    .map((k) => allCommands.find((c) => c.key === k))
+    .map((k) => staticCommands.find((c) => c.key === k))
     .filter((c): c is Command => c !== undefined && !filtered.includes(c))
 
   // Komut seçimi
@@ -99,18 +118,35 @@ export function CommandPalette() {
       addRecent(cmd.key)
       setCommandPaletteOpen(false)
 
+      // Kanal komutları
+      if (cmd.key.startsWith('channel-') && cmd.channelId) {
+        if (cmd.channelType === 'voice') {
+          // Sesli kanal - katıl
+          joinVoice(cmd.channelId).catch(() => {
+            pushToast({
+              kind: 'error',
+              title: 'Sesli Kanal',
+              description: 'Sesli kanala katılamadınız.',
+              duration: 3000,
+            })
+          })
+        } else {
+          // Metin kanal - git
+          selectChannel(cmd.channelId)
+        }
+        pushToast({
+          kind: 'success',
+          title: cmd.channelType === 'voice' ? 'Sesli Kanala Katıldınız' : 'Kanala Geçildi',
+          description: cmd.title,
+          duration: 2000,
+        })
+        return
+      }
+
       // Eylemi yürüt
       switch (cmd.key) {
         case 'new-guild':
           openModal('create-guild')
-          break
-        case 'new-channel':
-          pushToast({
-            kind: 'info',
-            title: 'Kanal Oluştur',
-            description: 'Kanal oluşturma özelliği yakında eklenecek.',
-            duration: 3000,
-          })
           break
         case 'settings':
           openModal('user-settings')
@@ -121,14 +157,6 @@ export function CommandPalette() {
             title: 'Tema Değiştir',
             description: 'Ayarlar > Görünüm sekmesinden tema değiştirebilirsiniz.',
             duration: 3000,
-          })
-          break
-        case 'join-voice':
-          pushToast({
-            kind: 'warning',
-            title: 'Sesli Kanal',
-            description: 'Aktif bir sesli kanal seçilmedi.',
-            duration: 2000,
           })
           break
         case 'copy-invite':
@@ -149,10 +177,10 @@ export function CommandPalette() {
           break
       }
     },
-    [addRecent, setCommandPaletteOpen, openModal, pushToast]
+    [addRecent, setCommandPaletteOpen, openModal, pushToast, selectChannel, joinVoice]
   )
 
-  // Klavae kontrolü
+  // Klavinge kontrolü
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!commandPaletteOpen) return
@@ -192,6 +220,10 @@ export function CommandPalette() {
   }, [commandPaletteOpen, grouped, recentCommands, focusedIndex, handleSelect])
 
   if (!commandPaletteOpen) return null
+
+  // Grupların erişilebilirliği için sıralı gösterim
+  const groupOrder = ['sunucu', 'kanallar', 'kanallar-voice', 'ayarlar', 'davet', 'sessiz', 'diğer']
+  const sortedGroups = groupOrder.filter((g) => grouped[g]).concat(Object.keys(grouped).filter((g) => !groupOrder.includes(g)))
 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
@@ -240,14 +272,15 @@ export function CommandPalette() {
           {/* Sonuçlar */}
           <div className="space-y-3 max-h-[60vh] overflow-y-auto">
             {/* Gruplandırılmış sonuçlar */}
-            {Object.entries(grouped).map(([group, cmds]) => (
+            {sortedGroups.map((group) => (
               <div key={group}>
                 <h3 className="text-xs font-medium text-[hsl(var(--pc-text-muted))] uppercase tracking-wider px-1">
-                  {group}
+                  {group === 'kanallar' ? 'Kanallar' : group === 'kanallar-voice' ? 'Sesli Kanallar' : group}
                 </h3>
                 <div className="space-y-1">
-                  {cmds.map((cmd, idx) => {
-                    const isFocused = idx === 0 // İlk öğe her grupta focus
+                  {grouped[group].map((cmd, idx) => {
+                    const isFocused = idx === 0
+                    const isActive = cmd.channelId && (cmd.channelId === activeChannelId || cmd.channelId === activeVoiceChannelId) ? true : false
                     return (
                       <motion.button
                         key={cmd.key}
@@ -255,17 +288,19 @@ export function CommandPalette() {
                         className={cn(
                           'w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
                           isFocused && 'bg-[hsl(var(--pc-accent-soft))] text-[hsl(var(--pc-accent-text))]',
-                          !isFocused && 'text-[hsl(var(--pc-text))] hover:bg-[hsl(var(--pc-surface-hover))]'
+                          !isFocused && 'text-[hsl(var(--pc-text))] hover:bg-[hsl(var(--pc-surface-hover))]',
+                          isActive && 'ring-1 ring-[hsl(var(--pc-accent))]'
                         )}
                         onClick={() => handleSelect(cmd)}
                       >
                         <span className="flex items-center justify-center w-5 h-5 text-xs rounded-full bg-[hsl(var(--pc-border-soft))]">
-                          {idx + 1}
+                          {cmd.channelType === 'voice' ? '🔊' : '#'}
                         </span>
                         <span className="flex-1">
-                          <div className="font-medium">{cmd.title}</div>
-                          <div className="text-xs text-[hsl(var(--pc-text-muted))]">{cmd.description}</div>
+                          <div className="font-medium truncate">{cmd.title}</div>
+                          <div className="text-xs text-[hsl(var(--pc-text-muted))] truncate">{cmd.description}</div>
                         </span>
+                        {isActive && <span className="text-[11px] text-[hsl(var(--pc-accent))]">• Aktif</span>}
                       </motion.button>
                     )
                   })}

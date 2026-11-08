@@ -45,6 +45,8 @@ async function run() {
   try {
     log('A: ana sayfa');
     await pageA.goto(BASE_URL, { waitUntil: 'networkidle' });
+    await pageA.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+    await pageA.reload({ waitUntil: 'networkidle' });
 
     log('A: sunucu olustur');
     await pageA.getByRole('button', { name: /Sunucu Olu\u015ftur/i }).first().click();

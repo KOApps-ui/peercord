@@ -26,11 +26,11 @@ export function MenuTrigger({ children, asChild = false, ...props }: MenuTrigger
   if (asChild) {
     return <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
   }
+  // asChild=false (varsayılan): Radix'in kendi butonunu kullan, içine children'ı koy.
+  // Bu şekilde tek bir buton çıkar ("button cannot contain a nested button" uyarısı olmaz).
   return (
-    <DropdownMenuTrigger asChild>
-      <button type="button" className="inline-flex items-center justify-center rounded-[var(--radius-md)] p-2 text-[hsl(var(--pc-text-muted))] hover:bg-[hsl(var(--pc-surface-hover))] hover:text-[hsl(var(--pc-text))] transition-colors duration-150" {...props}>
-        {children}
-      </button>
+    <DropdownMenuTrigger {...props}>
+      {children}
     </DropdownMenuTrigger>
   )
 }

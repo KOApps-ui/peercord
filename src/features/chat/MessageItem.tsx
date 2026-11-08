@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { useAppStore } from '@/lib/store'
-import { Menu, MenuTrigger, MenuContent, MenuItem } from '@/ui/primitives'
+
 import { AttachmentCard } from './AttachmentCard'
 import { Reactions } from './Reactions'
 
@@ -252,6 +252,7 @@ export function MessageItem({
   onSave,
   onCancel,
 }: MessageItemProps) {
+  const [menuOpen, setMenuOpen] = React.useState(false)
   const authorId = message.authorId
   const isOwnMessage = authorId === myUserId
 
@@ -368,29 +369,49 @@ export function MessageItem({
 
         {/* Hover toolbar for own messages */}
         {isOwnMessage && (
-          <div className="absolute right-0 top-0 pt-1 hidden">
-            <Menu>
-              <MenuTrigger aria-label="Daha fazla" className="pc-focus-rounded p-1">
-                <svg
-                  className="h-4 w-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
+          <div className="absolute right-0 top-0 pt-1">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setMenuOpen(!menuOpen)
+              }}
+              aria-label="Daha fazla"
+              className="pc-focus-rounded p-1"
+            >
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 mt-1 w-48 rounded-[var(--radius-md)] border border-[hsl(var(--pc-border-soft))] bg-[hsl(var(--pc-surface))] shadow-panel z-50">
+                <div
+                  onClick={() => {
+                    setMenuOpen(false)
+                    onEdit?.(message.id, message.content)
+                  }}
+                  className="flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-sm text-[hsl(var(--pc-text))] hover:bg-[hsl(var(--pc-surface-hover))] cursor-pointer"
                 >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </MenuTrigger>
-              <MenuContent>
-                <MenuItem onSelect={() => onEdit?.(message.id, message.content)}>
                   <span>Düzenle</span>
-                </MenuItem>
-                <MenuItem onSelect={() => onDelete?.(message.id)}>
+                </div>
+                <div
+                  onClick={() => {
+                    setMenuOpen(false)
+                    onDelete?.(message.id)
+                  }}
+                  className="flex items-center gap-3 rounded-[var(--radius-md)] px-3 py-2 text-sm text-[hsl(var(--pc-text))] hover:bg-[hsl(var(--pc-surface-hover))] cursor-pointer"
+                >
                   <span>Sil</span>
-                </MenuItem>
-              </MenuContent>
-            </Menu>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
