@@ -1,0 +1,326 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ *
+ * PeerCord design tokens
+ * Renkler HSL bileşenleri olarak tutulur: hsl(var(--token) / <alpha>)
+ * ------------------------------------------------------------------ */
+@theme {
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Outfit Variable', 'Outfit', var(--font-sans);
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 26px;
+
+  --shadow-ambient: 0 24px 60px -20px hsl(255 60% 8% / 0.65);
+  --shadow-panel: 0 18px 40px -24px hsl(255 60% 6% / 0.75);
+  --shadow-float: 0 12px 32px -8px hsl(255 70% 10% / 0.55);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Yüzeyler */
+  --pc-bg: 254 26% 8%;
+  --pc-bg-deep: 255 32% 5%;
+  --pc-surface: 255 20% 12%;
+  --pc-surface-raised: 255 18% 16%;
+  --pc-surface-overlay: 256 22% 19%;
+  --pc-surface-hover: 255 16% 20%;
+  --pc-surface-active: 255 16% 24%;
+  --pc-border: 255 14% 26%;
+  --pc-border-soft: 255 14% 20%;
+
+  /* Metin */
+  --pc-text: 250 30% 96%;
+  --pc-text-muted: 250 12% 70%;
+  --pc-text-subtle: 250 10% 55%;
+  --pc-text-inverse: 255 40% 8%;
+
+  /* Marka */
+  --pc-accent: 245 85% 65%;
+  --pc-accent-hover: 245 88% 70%;
+  --pc-accent-soft: 245 60% 30%;
+  --pc-accent-text: 245 100% 92%;
+  --pc-violet: 268 82% 66%;
+  --pc-cyan: 189 92% 62%;
+  --pc-pink: 330 84% 66%;
+
+  /* Durum */
+  --pc-online: 145 68% 48%;
+  --pc-idle: 42 94% 58%;
+  --pc-dnd: 358 82% 60%;
+  --pc-offline: 250 8% 46%;
+  --pc-danger: 358 82% 58%;
+  --pc-success: 152 62% 46%;
+  --pc-warning: 38 92% 58%;
+
+  /* Ölçü */
+  --pc-rail-w: 76px;
+  --pc-sidebar-w: 248px;
+  --pc-members-w: 244px;
+  --pc-header-h: 52px;
+  --pc-composer-max: 900px;
+
+  /* Blur / cam */
+  --pc-glass: 255 24% 12% / 0.72;
+  --pc-glass-strong: 255 24% 10% / 0.88;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --pc-bg: 250 34% 97%;
+  --pc-bg-deep: 250 30% 93%;
+  --pc-surface: 0 0% 100%;
+  --pc-surface-raised: 250 30% 98%;
+  --pc-surface-overlay: 0 0% 100%;
+  --pc-surface-hover: 250 28% 94%;
+  --pc-surface-active: 250 26% 90%;
+  --pc-border: 250 18% 86%;
+  --pc-border-soft: 250 20% 91%;
+  --pc-text: 255 28% 12%;
+  --pc-text-muted: 255 12% 38%;
+  --pc-text-subtle: 255 10% 52%;
+  --pc-text-inverse: 0 0% 100%;
+  --pc-accent: 245 78% 58%;
+  --pc-accent-hover: 245 80% 52%;
+  --pc-accent-soft: 245 90% 92%;
+  --pc-accent-text: 245 60% 34%;
+  --pc-glass: 0 0% 100% / 0.78;
+  --pc-glass-strong: 0 0% 100% / 0.92;
+}
+
+[data-theme='amoled'] {
+  color-scheme: dark;
+  --pc-bg: 0 0% 0%;
+  --pc-bg-deep: 0 0% 0%;
+  --pc-surface: 0 0% 4%;
+  --pc-surface-raised: 0 0% 7%;
+  --pc-surface-overlay: 0 0% 9%;
+  --pc-surface-hover: 0 0% 11%;
+  --pc-surface-active: 0 0% 14%;
+  --pc-border: 0 0% 16%;
+  --pc-border-soft: 0 0% 10%;
+  --pc-glass: 0 0% 2% / 0.85;
+  --pc-glass-strong: 0 0% 0% / 0.94;
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--pc-border-soft));
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: hsl(var(--pc-bg));
+    color: hsl(var(--pc-text));
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* Ambient arka plan ışıması */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(60rem 40rem at 12% -10%, hsl(var(--pc-accent) / 0.16), transparent 65%),
+      radial-gradient(50rem 36rem at 88% 8%, hsl(var(--pc-violet) / 0.12), transparent 68%),
+      radial-gradient(46rem 30rem at 50% 115%, hsl(var(--pc-cyan) / 0.08), transparent 70%);
+  }
+
+  ::selection {
+    background: hsl(var(--pc-accent) / 0.35);
+    color: hsl(var(--pc-text));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--pc-accent) / 0.8);
+    outline-offset: 2px;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  /* İnce kaydırma çubukları */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--pc-border) / 0.7) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--pc-border) / 0.7);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--pc-border));
+    background-clip: padding-box;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  .pc-glass {
+    background: hsl(var(--pc-glass));
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+  }
+
+  .pc-glass-strong {
+    background: hsl(var(--pc-glass-strong));
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+  }
+
+  .pc-panel {
+    background: hsl(var(--pc-surface));
+    border: 1px solid hsl(var(--pc-border-soft));
+    box-shadow: var(--shadow-panel);
+  }
+
+  .pc-gradient-text {
+    background: linear-gradient(100deg, hsl(var(--pc-text)) 5%, hsl(var(--pc-accent)) 48%, hsl(var(--pc-violet)) 92%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .pc-accent-gradient {
+    background-image: linear-gradient(135deg, hsl(var(--pc-accent)) 0%, hsl(var(--pc-violet)) 100%);
+  }
+
+  .pc-focus-ring {
+    outline: none;
+  }
+
+  .pc-focus-ring:focus-visible {
+    outline: 2px solid hsl(var(--pc-accent) / 0.9);
+    outline-offset: 2px;
+  }
+
+  .pc-scroll-fade {
+    mask-image: linear-gradient(to bottom, transparent 0, black 12px, black calc(100% - 12px), transparent 100%);
+  }
+
+  .pc-no-drag {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+}
+
+@layer utilities {
+  .pc-hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pc-hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .pc-drag-region {
+    -webkit-app-region: drag;
+  }
+
+  .pc-no-drag-region {
+    -webkit-app-region: no-drag;
+  }
+}
+
+/* Kullanım kolaylığı: azaltılmış hareket */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ortak animasyon anahtarları */
+@keyframes pc-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--pc-success) / 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 12px hsl(var(--pc-success) / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--pc-success) / 0);
+  }
+}
+
+@keyframes pc-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pc-pop {
+  0% {
+    transform: scale(0.72) rotate(-6deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes pc-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes pc-typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}

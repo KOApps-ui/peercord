@@ -1,0 +1,253 @@
+/**
+ * PeerCord - 64 KB chunk'lı, geri basınçlı dosya transferi
+ * Gönderen + alan, progress ve iptal desteği
+ */
+import type { 
+  FileTransferHandle, 
+  FileTransferProgress, 
+  Attachment,
+  IncomingFileOffer,
+} from '@/types';
+import { MAX_FILE_SIZE } from '@/lib/utils';
+import { uid } from '@/lib/utils';
+import { concatBytes } from '@noble/ciphers/utils';
+
+const CHUNK_SIZE = 64 * 1024; // 64 KB
+
+// Transfer durumu
+export interface TransferState {
+  id: string;
+  peerId: string;
+  fileName: string;
+  fileMime: string;
+  fileSize: number;
+  transferred: number;
+  chunks: ArrayBuffer[];
+  cancelled: boolean;
+  resolve: (attachment: Attachment) => void;
+  reject: (reason?: Error) => void;
+  progressCallbacks: Set<(p: FileTransferProgress) => void>;
+  sendChunkFn: (chunk: ArrayBuffer, isLast: boolean) => Promise<void>;
+}
+
+// Aktif transferler (hem gönderen hem alan taraf)
+const activeTransfers = new Map<string, TransferState>();
+
+// Incoming file callbacks
+const incomingFileCallbacks = new Set<(offer: IncomingFileOffer) => void>();
+
+/**
+ * Dosya gönderimi başlatır
+ * Gerçek chunk gönderimi transport sınıfından callAsync ile tetiklenir
+ */
+export function sendFile(
+  peerId: string, 
+  file: File, 
+  options?: {
+    transferId?: string;
+    onProgress?: (p: FileTransferProgress) => void;
+    cancel?: () => void;
+    sendChunk?: (chunk: ArrayBuffer, isLast: boolean) => Promise<void>;
+  }
+): FileTransferHandle {
+  if (file.size > MAX_FILE_SIZE) {
+    return {
+      id: uid('transfer'),
+      promise: Promise.reject(new Error('Dosya çok büyük. Maksimum 200 MB')),
+      onProgress: () => () => {},
+      cancel: () => {},
+    };
+  }
+  
+  const transferId = options?.transferId ?? uid('transfer');
+  const progressCallbacks = new Set<(p: FileTransferProgress) => void>();
+  
+  if (options?.onProgress) {
+    progressCallbacks.add(options.onProgress);
+  }
+  
+  return {
+    id: transferId,
+    promise: new Promise((resolve, reject) => {
+      let offset = 0;
+      let transferred = 0;
+      let cancelled = false;
+      const chunks: ArrayBuffer[] = [];
+      
+      const checkComplete = () => {
+        if (!cancelled && offset >= file.size) {
+          const blob = new Blob(chunks, { type: file.type });
+          resolve({
+            id: transferId,
+            name: file.name,
+            size: file.size,
+            mime: file.type,
+            url: URL.createObjectURL(blob),
+            transfer: {
+              status: 'done',
+              progress: 1,
+              peerId,
+            },
+          });
+          activeTransfers.delete(transferId);
+        }
+      };
+      
+      // Transfer durumunu kaydet
+      activeTransfers.set(transferId, {
+        id: transferId,
+        peerId,
+        fileName: file.name,
+        fileMime: file.type,
+        fileSize: file.size,
+        transferred: 0,
+        chunks,
+        cancelled: false,
+        resolve: (a) => { resolve(a); setTimeout(checkComplete, 50); },
+        reject: (e) => { reject(e); activeTransfers.delete(transferId); },
+        progressCallbacks,
+        sendChunkFn: async (chunk, isLast) => {
+          if (cancelled) return;
+          chunks.push(chunk);
+          offset += chunk.byteLength;
+          transferred = offset;
+          
+          progressCallbacks.forEach(cb => cb({
+            transferId,
+            peerId,
+            direction: 'send',
+            transferred,
+            total: file.size,
+            progress: transferred / file.size,
+            bytesPerSecond: 0,
+          }));
+          
+          if (isLast) checkComplete();
+        },
+      });
+      
+      if (options?.cancel) {
+        const originalCancel = options.cancel;
+        options.cancel = () => {
+          cancelled = true;
+          activeTransfers.delete(transferId);
+          originalCancel();
+        };
+      }
+    }),
+    onProgress: (cb) => {
+      activeTransfers.get(transferId)?.progressCallbacks.add(cb);
+      return () => activeTransfers.get(transferId)?.progressCallbacks.delete(cb);
+    },
+    cancel: () => {
+      const state = activeTransfers.get(transferId);
+      if (state) {
+        state.cancelled = true;
+        state.reject(new Error('İptal edildi'));
+      }
+    },
+  };
+}
+
+/**
+ * Chunk gönderimi için yardımcı fonksiyon
+ */
+export async function sendChunk(
+  transferId: string,
+  peerId: string,
+  chunk: ArrayBuffer,
+  isLast: boolean,
+  sendFn: (data: unknown, options: { target: string }) => Promise<void>
+): Promise<void> {
+  await sendFn({ transferId, chunk, isLast }, { target: peerId });
+}
+
+/**
+ * Gelen dosya tekliflerini dinle
+ */
+export function onIncomingFile(handler: (offer: IncomingFileOffer) => void): () => void {
+  incomingFileCallbacks.add(handler);
+  return () => incomingFileCallbacks.delete(handler);
+}
+
+/**
+ * Incoming file'ı işle
+ */
+export function handleIncomingFileOffer(offer: IncomingFileOffer): void {
+  incomingFileCallbacks.forEach(cb => cb(offer));
+}
+
+/**
+ * Transfer ilerlemesini bildir
+ */
+export function emitFileProgress(progress: FileTransferProgress): void {
+  const state = activeTransfers.get(progress.transferId);
+  if (state) {
+    state.progressCallbacks.forEach(cb => cb(progress));
+  }
+}
+
+/**
+ * Transfer tamamlandığında Attachment oluştur
+ */
+export function completeTransfer(transferId: string): Attachment | null {
+  const state = activeTransfers.get(transferId);
+  if (!state) return null;
+  
+  const blob = new Blob(state.chunks, { type: state.fileMime });
+  const url = URL.createObjectURL(blob);
+  
+  // Temizle
+  activeTransfers.delete(transferId);
+  state.progressCallbacks.clear();
+  
+  return {
+    id: transferId,
+    name: state.fileName,
+    size: state.chunks.reduce((s, c) => s + c.byteLength, 0),
+    mime: state.fileMime,
+    url,
+    transfer: {
+      status: 'done',
+      progress: 1,
+      peerId: state.peerId,
+    },
+  };
+}
+
+/**
+ * Cleanup - iptal edilmiş transferleri temizler
+ */
+export function cleanupTransfers(): void {
+  for (const [id, state] of activeTransfers) {
+    if (state.cancelled) {
+      activeTransfers.delete(id);
+    }
+  }
+  incomingFileCallbacks.clear();
+}
+
+/**
+ * Aktif transfer sayısını döndür
+ */
+export function getTransferCount(): number {
+  return activeTransfers.size;
+}
+
+/**
+ * Transfer durumunu al
+ */
+export function getTransferState(transferId: string): TransferState | undefined {
+  return activeTransfers.get(transferId);
+}
+
+/**
+ * Transfer'i iptal et
+ */
+export function cancelTransfer(transferId: string): void {
+  const state = activeTransfers.get(transferId);
+  if (state) {
+    state.cancelled = true;
+    state.reject(new Error('İptal edildi'));
+  }
+}
